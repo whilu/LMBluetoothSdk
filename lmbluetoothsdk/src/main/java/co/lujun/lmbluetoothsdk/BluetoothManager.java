@@ -89,6 +89,7 @@ public class BluetoothManager implements BaseManager {
     @Override
     public void onOpenBluetooth(){
         if (!isAvaliable()){
+
             return;
         }
 //        Intent intent = new Intent();
