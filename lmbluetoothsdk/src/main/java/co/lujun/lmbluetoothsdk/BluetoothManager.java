@@ -149,6 +149,6 @@ public class BluetoothManager implements BaseManager {
             mBluetoothAdapter.cancelDiscovery();
         }
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mac);
-        // thread start...connect thread connected thread read write
+        // thread connect thread connected thread read writehhstart...
     }
 }
