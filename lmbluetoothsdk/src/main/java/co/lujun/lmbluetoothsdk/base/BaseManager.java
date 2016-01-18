@@ -2,7 +2,6 @@ package co.lujun.lmbluetoothsdk.base;
 
 import android.bluetooth.BluetoothDevice;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,12 +46,6 @@ public interface BaseManager {
     Set<BluetoothDevice> getBondedDevices();
 
     /**
-     * Find all bluetooth devices.
-     * @return
-     */
-    List<BluetoothDevice> findAllDevices();
-
-    /**
      * Find a bluetooth device by mac address.
      * @param mac
      * @return
@@ -60,8 +53,19 @@ public interface BaseManager {
     BluetoothDevice findDeviceByMac(String mac);
 
     /**
+     * Start as a server.
+     */
+    void onStartAsServer();
+
+    /**
      * Connected a bluetooth device by mac address.
      * @param mac
      */
     void connect(String mac);
+
+    /**
+     * Write data to remote device.
+     * @param data
+     */
+    void onWrite(byte[] data);
 }

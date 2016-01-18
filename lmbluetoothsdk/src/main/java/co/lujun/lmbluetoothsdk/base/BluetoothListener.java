@@ -12,4 +12,6 @@ public interface BluetoothListener {
     void onActionDiscoveryStateChanged(String discoveryState);
     void onActionFound(BluetoothDevice device);
     void onActionScanModeChanged(int preScanMode, int scanMode);
+    void onBluetoothServiceStateChanged(int state);
+    void onReadData(byte[] data);
 }

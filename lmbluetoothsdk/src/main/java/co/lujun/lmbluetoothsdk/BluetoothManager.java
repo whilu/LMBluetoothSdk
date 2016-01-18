@@ -6,12 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import java.util.List;
 import java.util.Set;
 
 import co.lujun.lmbluetoothsdk.base.BaseManager;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
 import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
+import co.lujun.lmbluetoothsdk.service.BluetoothService;
 
 /**
  * Author: lujun(http://blog.lujun.co)
@@ -20,9 +20,10 @@ import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
 public class BluetoothManager implements BaseManager {
 
     private BluetoothAdapter mBluetoothAdapter;
-    private Context mContext;
     private BluetoothListener mBluetoothListener;
     private BlueToothReceiver mReceiver;
+    private Context mContext;
+    private BluetoothService mBluetoothService;
 
     private static BluetoothManager sBluetoothManager;
 
@@ -42,10 +43,13 @@ public class BluetoothManager implements BaseManager {
     /**
      * Build this instance.
      * @param context
+     * @return
      */
-    public void build(Context context){
+    public BluetoothManager build(Context context){
         mContext = context;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothService = new BluetoothService(mBluetoothListener);
+        return this;
     }
 
     /**
@@ -126,19 +130,18 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public List<BluetoothDevice> findAllDevices(){
-        if (!isAvaliable() || !isEnabled()){
-            throw new RuntimeException("Bluetooth is not avaliable!");
-        }
-        return null;
-    }
-
-    @Override
     public BluetoothDevice findDeviceByMac(String mac){
         if (!isAvaliable() || !isEnabled()){
             throw new RuntimeException("Bluetooth is not avaliable!");
         }
         return mBluetoothAdapter.getRemoteDevice(mac);
+    }
+
+    @Override
+    public void onStartAsServer() {
+        if (mBluetoothService != null){
+            mBluetoothService.start();
+        }
     }
 
     @Override
@@ -149,7 +152,15 @@ public class BluetoothManager implements BaseManager {
         if (mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
         }
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mac);
-        // thread connect thread connected thread read writehhstart...
+        if (mBluetoothService != null){
+            mBluetoothService.connect(mBluetoothAdapter.getRemoteDevice(mac));
+        }
+    }
+
+    @Override
+    public void onWrite(byte[] data) {
+        if (mBluetoothService != null){
+            mBluetoothService.write(data);
+        }
     }
 }
