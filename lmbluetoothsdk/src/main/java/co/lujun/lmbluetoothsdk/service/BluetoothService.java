@@ -43,7 +43,7 @@ public class BluetoothService {
     }
 
     /**
-     * Set the current state of the chat connection
+     * Set the current state of the connection
      * @param state  An integer defining the current connection state
      */
     private synchronized void setState(int state) {
@@ -93,11 +93,9 @@ public class BluetoothService {
     public synchronized void connect(BluetoothDevice device) {
         Log.d(TAG, "connect to: " + device);
         // Cancel any thread attempting to make a connection
-        if (mState == STATE_CONNECTING) {
-            if (mConnectThread != null) {
-                mConnectThread.cancel();
-                mConnectThread = null;
-            }
+        if (mState == STATE_CONNECTING && mConnectThread != null) {
+            mConnectThread.cancel();
+            mConnectThread = null;
         }
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {
