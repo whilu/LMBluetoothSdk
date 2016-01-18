@@ -40,6 +40,18 @@ public interface BaseManager {
     boolean setDiscoverable(int time);
 
     /**
+     * Start discovery.
+     * @return
+     */
+    boolean startDiscovery();
+
+    /**
+     * Cancel discovery.
+     * @return
+     */
+    boolean cancelDiscovery();
+
+    /**
      * Get paired devices.
      * @return
      */

@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -20,29 +19,26 @@ import co.lujun.lmbluetoothsdk.base.BluetoothListener;
  */
 public class BluetoothService {
 
-    // Debugging
-    private static final String TAG = "BluetoothService";
+    private static final String TAG = "LMBluetoothSdk";
 
     private static final UUID ANDROID_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
-    // Member fields
     private final BluetoothAdapter mAdapter;
     private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
+
     private BluetoothListener mBluetoothListener;
 
     private int mState;
 
-    // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
     public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
     public static final int STATE_CONNECTED = 3;  // now connected to a remote device
 
-    public BluetoothService(BluetoothListener listener) {
+    public BluetoothService() {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
-        mBluetoothListener = listener;
         mState = STATE_NONE;
     }
 
@@ -51,15 +47,20 @@ public class BluetoothService {
      * @param state  An integer defining the current connection state
      */
     private synchronized void setState(int state) {
-        Log.d(TAG, "setState() " + mState + " -> " + state);
         mState = state;
         if (mBluetoothListener != null){
             mBluetoothListener.onBluetoothServiceStateChanged(state);
         }
     }
 
+    public synchronized void setBluetoothListener(BluetoothListener listener) {
+        this.mBluetoothListener = listener;
+    }
+
     /**
-     * Return the current connection state. */
+     * Return the current connection state.
+     * @return
+     */
     public synchronized int getState() {
         return mState;
     }
@@ -71,7 +72,7 @@ public class BluetoothService {
     public synchronized void start() {
         Log.d(TAG, "start");
         if (mConnectThread != null) {
-            mConnectThread.cancel(); 
+            mConnectThread.cancel();
             mConnectThread = null;
         }
         if (mConnectedThread != null) {
