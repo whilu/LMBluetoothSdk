@@ -6,18 +6,18 @@ package co.lujun.lmbluetoothsdk.base;
  */
 public class State {
 
-    // we're doing nothing
+    /** we're doing nothing*/
     public static final int STATE_NONE = 0;
 
-    // now listening for incoming connections
+    /** now listening for incoming connections*/
     public static final int STATE_LISTEN = 1;
 
-    // now initiating an outgoing connection
+    /** now initiating an outgoing connection*/
     public static final int STATE_CONNECTING = 2;
 
-    // now connected to a remote device
+    /** now connected to a remote device*/
     public static final int STATE_CONNECTED = 3;
 
-    // unknown state
+    /** unknown state*/
     public static final int STATE_UNKNOWN = 4;
 }

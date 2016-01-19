@@ -34,10 +34,42 @@ import android.bluetooth.BluetoothDevice;
  */
 public interface BluetoothListener {
 
+    /**
+     * Callback when bluetooth power state changed.
+     *
+     * @param preState previous power state
+     * @param state current power state
+     */
     void onActionStateChanged(int preState, int state);
+
+    /**
+     * Callback when local Bluetooth adapter discovery process state changed.
+     * @param discoveryState the state of local Bluetooth adapter discovery process.
+     */
     void onActionDiscoveryStateChanged(String discoveryState);
+
+    /**
+     * Callback when the current scan mode changed.
+     * @param preScanMode previous scan mode
+     * @param scanMode current scan mode
+     */
     void onActionScanModeChanged(int preScanMode, int scanMode);
+
+    /**
+     * Callback when the connection state changed.
+     * @param state connection state
+     */
     void onBluetoothServiceStateChanged(int state);
+
+    /**
+     * Callback when found device.
+     * @param device a remote device
+     */
     void onActionDeviceFound(BluetoothDevice device);
+
+    /**
+     * Callback when remote device send data to current device.
+     * @param data data
+     */
     void onReadData(byte[] data);
 }
