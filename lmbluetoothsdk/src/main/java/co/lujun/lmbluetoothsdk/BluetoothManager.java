@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import java.util.Set;
+import java.util.UUID;
 
 import co.lujun.lmbluetoothsdk.base.BaseManager;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
@@ -201,12 +202,36 @@ public class BluetoothManager implements BaseManager {
         if (mBluetoothService != null){
             mBluetoothService.stop();
         }
+        if (mContext != null && mReceiver != null){
+            mContext.unregisterReceiver(mReceiver);
+        }
     }
 
     @Override
     public void write(byte[] data) {
         if (mBluetoothService != null){
             mBluetoothService.write(data);
+        }
+    }
+
+    /**
+     * Get UUID.
+     * @return
+     */
+    public UUID getAppUuid(){
+        if (mBluetoothService != null){
+            return mBluetoothService.getAppUuid();
+        }
+        return null;
+    }
+
+    /**
+     * Set UUID.
+     * @param uuid
+     */
+    public void setAppUuid(UUID uuid){
+        if (mBluetoothService != null){
+            mBluetoothService.setAppUuid(uuid);
         }
     }
 }

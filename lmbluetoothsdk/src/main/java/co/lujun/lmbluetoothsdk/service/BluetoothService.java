@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
+import co.lujun.lmbluetoothsdk.base.State;
 
 /**
  * Author: lujun(http://blog.lujun.co)
@@ -37,8 +38,6 @@ public class BluetoothService {
 
     private static final String TAG = "LMBluetoothSdk";
 
-    private static final UUID ANDROID_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
-
     private final BluetoothAdapter mAdapter;
     private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
@@ -46,14 +45,11 @@ public class BluetoothService {
     private BluetoothListener mBluetoothListener;
 
     private int mState;
-    public static final int STATE_NONE = 0;       // we're doing nothing
-    public static final int STATE_LISTEN = 1;     // now listening for incoming connections
-    public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
-    public static final int STATE_CONNECTED = 3;  // now connected to a remote device
+    private UUID mAppUuid = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
     public BluetoothService() {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
-        mState = STATE_NONE;
+        mState = State.STATE_NONE;
     }
 
     /**
@@ -62,6 +58,22 @@ public class BluetoothService {
      */
     public synchronized void setBluetoothListener(BluetoothListener listener) {
         this.mBluetoothListener = listener;
+    }
+
+    /**
+     * Get UUID.
+     * @return
+     */
+    public UUID getAppUuid() {
+        return mAppUuid;
+    }
+
+    /**
+     * Set UUID.
+     * @param uuid
+     */
+    public void setAppUuid(UUID uuid) {
+        this.mAppUuid = uuid;
     }
 
     /**
@@ -93,7 +105,7 @@ public class BluetoothService {
             mAcceptThread = new AcceptThread();
             mAcceptThread.start();
         }
-        setState(STATE_LISTEN);
+        setState(State.STATE_LISTEN);
     }
 
     /**
@@ -102,7 +114,7 @@ public class BluetoothService {
      */
     public synchronized void connect(BluetoothDevice device) {
         Log.d(TAG, "connect to: " + device);
-        if (mState == STATE_CONNECTING && mConnectThread != null) {
+        if (mState == State.STATE_CONNECTING && mConnectThread != null) {
             mConnectThread.cancel();
             mConnectThread = null;
         }
@@ -112,7 +124,7 @@ public class BluetoothService {
         }
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
-        setState(STATE_CONNECTING);
+        setState(State.STATE_CONNECTING);
     }
     /**
      * Start the ConnectedThread to begin managing a Bluetooth connection.
@@ -135,7 +147,7 @@ public class BluetoothService {
         }
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
-        setState(STATE_CONNECTED);
+        setState(State.STATE_CONNECTED);
     }
 
     /**
@@ -155,7 +167,7 @@ public class BluetoothService {
             mAcceptThread.cancel();
             mAcceptThread = null;
         }
-        setState(STATE_NONE);
+        setState(State.STATE_NONE);
     }
 
     /**
@@ -166,7 +178,7 @@ public class BluetoothService {
     public void write(byte[] out) {
         ConnectedThread r;
         synchronized (this) {
-            if (mState != STATE_CONNECTED) {
+            if (mState != State.STATE_CONNECTED) {
                 return;
             }
             r = mConnectedThread;
@@ -186,7 +198,7 @@ public class BluetoothService {
         public AcceptThread() {
             BluetoothServerSocket tmp = null;
             try {
-                tmp = mAdapter.listenUsingRfcommWithServiceRecord(TAG, ANDROID_UUID);
+                tmp = mAdapter.listenUsingRfcommWithServiceRecord(TAG, mAppUuid);
             } catch (IOException e) {
                 Log.e(TAG, "listen() failed", e);
             }
@@ -196,7 +208,7 @@ public class BluetoothService {
         public void run() {
             Log.d(TAG, "BEGIN mAcceptThread" + this);
             BluetoothSocket socket = null;
-            while (mState != STATE_CONNECTED) {
+            while (mState != co.lujun.lmbluetoothsdk.base.State.STATE_CONNECTED) {
                 try {
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
@@ -206,12 +218,12 @@ public class BluetoothService {
                 if (socket != null) {
                     synchronized (BluetoothService.this) {
                         switch (mState) {
-                            case STATE_LISTEN:
-                            case STATE_CONNECTING:
+                            case co.lujun.lmbluetoothsdk.base.State.STATE_LISTEN:
+                            case co.lujun.lmbluetoothsdk.base.State.STATE_CONNECTING:
                                 connected(socket, socket.getRemoteDevice());
                                 break;
-                            case STATE_NONE:
-                            case STATE_CONNECTED:
+                            case co.lujun.lmbluetoothsdk.base.State.STATE_NONE:
+                            case co.lujun.lmbluetoothsdk.base.State.STATE_CONNECTED:
                                 try {
                                     socket.close();
                                 } catch (IOException e) {
@@ -251,7 +263,7 @@ public class BluetoothService {
             // Get a BluetoothSocket for a connection with the
             // given BluetoothDevice
             try {
-                tmp = device.createRfcommSocketToServiceRecord(ANDROID_UUID);
+                tmp = device.createRfcommSocketToServiceRecord(mAppUuid);
             } catch (IOException e) {
                 Log.e(TAG, "create() failed", e);
             }
@@ -268,7 +280,7 @@ public class BluetoothService {
                 // successful connection or an exception
                 mmSocket.connect();
             } catch (IOException e) {
-                setState(STATE_LISTEN);
+                setState(co.lujun.lmbluetoothsdk.base.State.STATE_LISTEN);
                 // Close the socket
                 try {
                     mmSocket.close();
@@ -333,7 +345,7 @@ public class BluetoothService {
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
-                    setState(STATE_LISTEN);
+                    setState(co.lujun.lmbluetoothsdk.base.State.STATE_LISTEN);
                     break;
                 }
             }

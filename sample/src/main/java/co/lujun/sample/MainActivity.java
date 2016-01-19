@@ -21,20 +21,24 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import co.lujun.lmbluetoothsdk.BluetoothManager;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
+import co.lujun.lmbluetoothsdk.base.State;
 
 public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager mBluetoothManager;
     
     private Button btnScanAvaliabe, btnScan, btnSend, btnOpen, btnStartServer;
-    private TextView tvContent;
+    private TextView tvContent, tvState;
     private EditText etSend;
     private ListView lvDevices;
 
-    private List<String> mDevicesList;
+    private BluetoothDevice mConnectDevice;
+    private List<BluetoothDevice> mDevicesList;
+    private List<String> mList;
     private BaseAdapter mFoundAdapter;
 
     private static final String TAG = "LMBluetoothSdk";
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initBT(){
         mBluetoothManager = BluetoothManager.getInstance().build(this);
+        mBluetoothManager.setAppUuid(UUID.fromString("fa87c0d0-afac-12de-8a39-0450200c9a66"));
         mBluetoothManager.setBluetoothListener(new BluetoothListener() {
             @Override
             public void onActionStateChanged(int preState, int state) {
@@ -68,13 +73,31 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onBluetoothServiceStateChanged(int state) {
-                Log.d(TAG, "Service State:" + state);
+            public void onBluetoothServiceStateChanged(final int state) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String stateStr;
+                        if (state == State.STATE_NONE) {
+                            stateStr = "STATE_NONE";
+                        }else if (state == State.STATE_LISTEN) {
+                            stateStr = "STATE_LISTEN";
+                        }else if (state == State.STATE_CONNECTING) {
+                            stateStr = "STATE_CONNECTING";
+                        }else if (state == State.STATE_CONNECTED) {
+                            stateStr = "STATE_CONNECTED";
+                        }else {
+                            stateStr = "STATE_UNKNOWN";
+                        }
+                        tvState.setText("State: " + stateStr);
+                    }
+                });
             }
 
             @Override
             public void onActionDeviceFound(BluetoothDevice device) {
-                mDevicesList.add(device.getName() + "@" + device.getAddress());
+                mDevicesList.add(device);
+                mList.add(device.getName() + "@" + device.getAddress());
                 mFoundAdapter.notifyDataSetChanged();
             }
 
@@ -83,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        tvContent.append(new String(data) + "\n");
+                        String deviceName = mConnectDevice == null ? "" : mConnectDevice.getName();
+                        tvContent.append(deviceName + ": " + new String(data) + "\n");
                     }
                 });
             }
@@ -91,10 +115,9 @@ public class MainActivity extends AppCompatActivity {
     }
     
     private void init(){
-        mDevicesList = new ArrayList<String>();
-        mFoundAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mDevicesList);
-
-        initBT();
+        mDevicesList = new ArrayList<BluetoothDevice>();
+        mList = new ArrayList<String>();
+        mFoundAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mList);
         
         btnScanAvaliabe = (Button) findViewById(R.id.btn_scan_avaliable);
         btnScan = (Button) findViewById(R.id.btn_scan);
@@ -102,8 +125,11 @@ public class MainActivity extends AppCompatActivity {
         btnOpen = (Button) findViewById(R.id.btn_open_bt);
         btnStartServer = (Button) findViewById(R.id.btn_start_as_server);
         tvContent = (TextView) findViewById(R.id.tv_chat_content);
+        tvState = (TextView) findViewById(R.id.tv_state);
         etSend = (EditText) findViewById(R.id.et_send_content);
         lvDevices = (ListView) findViewById(R.id.lv_devices);
+
+        initBT();
 
         lvDevices.setAdapter(mFoundAdapter);
 
@@ -128,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 mBluetoothManager.write(msg.getBytes());
-                tvContent.append(msg + "\n");
+                tvContent.append("Me: " + msg + "\n");
             }
         });
         btnOpen.setOnClickListener(new View.OnClickListener() {
@@ -148,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
         lvDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String itemStr = mDevicesList.get(position);
+                mConnectDevice = mDevicesList.get(position);
+                String itemStr = mList.get(position);
                 mBluetoothManager.connect(itemStr.substring(itemStr.length() - 17));
             }
         });

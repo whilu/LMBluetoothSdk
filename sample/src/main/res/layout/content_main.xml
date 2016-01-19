@@ -48,6 +48,12 @@
             android:text="打开服务端" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_state"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="150dp">
