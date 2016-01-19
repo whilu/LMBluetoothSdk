@@ -47,13 +47,11 @@ public class BluetoothManager implements BaseManager {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothListener mBluetoothListener;
+    private BluetoothService mBluetoothService;
     private BlueToothReceiver mReceiver;
     private Context mContext;
-    private BluetoothService mBluetoothService;
 
     private static BluetoothManager sBluetoothManager;
-
-    private static final String TAG = "BluetoothManager";
 
     public static BluetoothManager getInstance(){
         if (sBluetoothManager == null){
@@ -79,7 +77,7 @@ public class BluetoothManager implements BaseManager {
     }
 
     /**
-     * Set bluetooth listener, you can check all bluetooth status with this listener's callback.
+     * Set bluetooth listener, you can check all bluetooth status and read data with this listener's callback.
      * @param listener
      */
     public void setBluetoothListener(BluetoothListener listener){
@@ -120,18 +118,15 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public void onOpenBluetooth(){
+    public void openBluetooth(){
         if (!isAvaliable()){
             return;
         }
-//        Intent intent = new Intent();
-//        intent.setAction(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//        startActivityForResult(intent, REQUEST_ENABLE_BT);
         mBluetoothAdapter.enable();
     }
 
     @Override
-    public void onCloseBluetooth(){
+    public void closeBluetooth(){
         if (!isAvaliable() && !isEnabled()){
             return;
         }
@@ -150,7 +145,7 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public boolean startDiscovery() {
+    public boolean startScan() {
         if (!isAvaliable() && !isEnabled()){
             return false;
         }
@@ -158,7 +153,7 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public boolean cancelDiscovery() {
+    public boolean cancelScan() {
         if (!isAvaliable() && !isEnabled()){
             return false;
         }
@@ -182,7 +177,7 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public void onStartAsServer() {
+    public void startAsServer() {
         if (mBluetoothService != null){
             mBluetoothService.start();
         }
@@ -202,7 +197,14 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public void onWrite(byte[] data) {
+    public void disconnect() {
+        if (mBluetoothService != null){
+            mBluetoothService.stop();
+        }
+    }
+
+    @Override
+    public void write(byte[] data) {
         if (mBluetoothService != null){
             mBluetoothService.write(data);
         }

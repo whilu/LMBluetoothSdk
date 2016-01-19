@@ -63,12 +63,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onActionFound(BluetoothDevice device) {
-                mDevicesList.add(device.getName() + "@" + device.getAddress());
-                mFoundAdapter.notifyDataSetChanged();
-            }
-
-            @Override
             public void onActionScanModeChanged(int preScanMode, int scanMode) {
                 Log.d(TAG, "preScanMode:" + preScanMode + ", scanMode:" + scanMode);
             }
@@ -76,6 +70,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onBluetoothServiceStateChanged(int state) {
                 Log.d(TAG, "Service State:" + state);
+            }
+
+            @Override
+            public void onActionDeviceFound(BluetoothDevice device) {
+                mDevicesList.add(device.getName() + "@" + device.getAddress());
+                mFoundAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBluetoothManager.startDiscovery();
+                mBluetoothManager.startScan();
             }
         });
         btnSend.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(msg)){
                     return;
                 }
-                mBluetoothManager.onWrite(msg.getBytes());
+                mBluetoothManager.write(msg.getBytes());
                 tvContent.append(msg + "\n");
             }
         });
@@ -135,14 +135,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!mBluetoothManager.isEnabled()){
-                    mBluetoothManager.onOpenBluetooth();
+                    mBluetoothManager.openBluetooth();
                 }
             }
         });
         btnStartServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBluetoothManager.onStartAsServer();
+                mBluetoothManager.startAsServer();
             }
         });
         lvDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {

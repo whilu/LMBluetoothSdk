@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+
+ * Copyright (c) 2015 LinkMob.cc
+
+ * Contributors: lujun
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package co.lujun.lmbluetoothsdk.base;
 
 import android.bluetooth.BluetoothDevice;
@@ -25,31 +51,31 @@ public interface BaseManager {
     /**
      * Open bluetooth.
      */
-    void onOpenBluetooth();
+    void openBluetooth();
 
     /**
      * Close bluetooth.
      */
-    void onCloseBluetooth();
+    void closeBluetooth();
 
     /**
-     * Set bluetooth discoverable with specified time.
+     * Set bluetooth discoverable with specified time(unit s).
      * @param time
      * @return
      */
     boolean setDiscoverable(int time);
 
     /**
-     * Start discovery.
+     * Start scan.
      * @return
      */
-    boolean startDiscovery();
+    boolean startScan();
 
     /**
-     * Cancel discovery.
+     * Cancel scan.
      * @return
      */
-    boolean cancelDiscovery();
+    boolean cancelScan();
 
     /**
      * Get paired devices.
@@ -67,7 +93,7 @@ public interface BaseManager {
     /**
      * Start as a server.
      */
-    void onStartAsServer();
+    void startAsServer();
 
     /**
      * Connected a bluetooth device by mac address.
@@ -76,8 +102,13 @@ public interface BaseManager {
     void connect(String mac);
 
     /**
+     * Disconnect connection.
+     */
+    void disconnect();
+
+    /**
      * Write data to remote device.
      * @param data
      */
-    void onWrite(byte[] data);
+    void write(byte[] data);
 }
