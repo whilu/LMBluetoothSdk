@@ -38,73 +38,79 @@ public interface BaseManager {
 
     /**
      * Is current device's bluetooth avaliable.
-     * @return
+     * @return true if current device's bluetooth is avaliable
      */
     boolean isAvaliable();
 
     /**
      * Is current device's bluetooth opened.
-     * @return
+     * @return true id current device's bluetooth is enabled
      */
     boolean isEnabled();
 
     /**
-     * Open bluetooth.
-     * @return
+     * Open device's bluetooth.
+     * @return true if open bluetooth operation success
      */
     boolean openBluetooth();
 
     /**
-     * Close bluetooth.
+     * Close device's bluetooth.
      */
     void closeBluetooth();
 
     /**
-     * Set bluetooth discoverable with specified time(unit s).
-     * @param time
-     * @return
+     * Set bluetooth discoverable with specified time.
+     * @param time the time(unit s) of the device's bluetooth can be found
+     * @return true if set discoverable operation success
      */
     boolean setDiscoverable(int time);
 
     /**
      * Get current bluetooth state.
-     * @return
+     * @return an integer value represent the bluetooth state,
+     * Possible return values are
+     * BluetoothAdapter.STATE_OFF,
+     * BluetoothAdapter.STATE_TURNING_ON,
+     * BluetoothAdapter.STATE_ON,
+     * BluetoothAdapter.STATE_TURNING_OFF.
+     * Requires android.Manifest.permission.BLUETOOTH
      */
     int getBluetoothState();
 
     /**
-     * Start scan.
-     * @return
+     * Start scan for found bluetooth device.
+     * @return if start scan operation success, return true
      */
     boolean startScan();
 
     /**
-     * Cancel scan.
-     * @return
+     * Cancel device's bluetooth scan operation.
+     * @return if cancel scan operation success, return true
      */
     boolean cancelScan();
 
     /**
      * Get paired devices.
-     * @return
+     * @return the paired devices set
      */
     Set<BluetoothDevice> getBondedDevices();
 
     /**
      * Find a bluetooth device by mac address.
-     * @param mac
-     * @return
+     * @param mac the bluetooth mac address
+     * @return a remote bluetooth device
      */
     BluetoothDevice findDeviceByMac(String mac);
 
     /**
-     * Start as a server.
+     * Start as a server, that will listen to client connect.
      */
     void startAsServer();
 
     /**
      * Connected a bluetooth device by mac address.
-     * @param mac
+     * @param mac the bluetooth mac address
      */
     void connect(String mac);
 
@@ -115,7 +121,7 @@ public interface BaseManager {
 
     /**
      * Write data to remote device.
-     * @param data
+     * @param data the byte array represent the data
      */
     void write(byte[] data);
 }

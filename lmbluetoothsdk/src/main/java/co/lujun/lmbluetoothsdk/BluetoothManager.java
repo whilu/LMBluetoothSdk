@@ -215,7 +215,13 @@ public class BluetoothManager implements BaseManager {
 
     /**
      * Get connection state.
-     * @return
+     * @return the connection state,
+     * Possible return values are
+     * State.STATE_NONE,
+     * State.STATE_LISTEN,
+     * State.STATE_CONNECTING,
+     * State.STATE_CONNECTED,
+     * State.STATE_UNKNOWN.
      */
     public int getConnectionState(){
         if (mBluetoothService != null){
@@ -233,8 +239,8 @@ public class BluetoothManager implements BaseManager {
 
     /**
      * Send a file.
-     * @param path
-     * @param fileName
+     * @param path the file's path
+     * @param fileName file name
      */
     public void write(String path, String fileName){
         if (mBluetoothService != null){
@@ -243,8 +249,8 @@ public class BluetoothManager implements BaseManager {
     }
 
     /**
-     * Get UUID.
-     * @return
+     * Get current SDP recorded UUID.
+     * @return an UUID
      */
     public UUID getAppUuid(){
         if (mBluetoothService != null){
@@ -254,8 +260,8 @@ public class BluetoothManager implements BaseManager {
     }
 
     /**
-     * Set UUID.
-     * @param uuid
+     * Set a UUID for SDP record.
+     * @param uuid an UUID
      */
     public void setAppUuid(UUID uuid){
         if (mBluetoothService != null){
