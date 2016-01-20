@@ -50,8 +50,9 @@ public interface BaseManager {
 
     /**
      * Open bluetooth.
+     * @return
      */
-    void openBluetooth();
+    boolean openBluetooth();
 
     /**
      * Close bluetooth.
@@ -64,6 +65,12 @@ public interface BaseManager {
      * @return
      */
     boolean setDiscoverable(int time);
+
+    /**
+     * Get current bluetooth state.
+     * @return
+     */
+    int getBluetoothState();
 
     /**
      * Start scan.

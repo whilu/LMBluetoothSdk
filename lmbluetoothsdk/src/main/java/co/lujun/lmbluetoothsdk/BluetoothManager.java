@@ -37,6 +37,7 @@ import java.util.UUID;
 
 import co.lujun.lmbluetoothsdk.base.BaseManager;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
+import co.lujun.lmbluetoothsdk.base.State;
 import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
 import co.lujun.lmbluetoothsdk.service.BluetoothService;
 
@@ -119,11 +120,11 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public void openBluetooth(){
+    public boolean openBluetooth(){
         if (!isAvaliable()){
-            return;
+            return false;
         }
-        mBluetoothAdapter.enable();
+        return mBluetoothAdapter.enable();
     }
 
     @Override
@@ -143,6 +144,14 @@ public class BluetoothManager implements BaseManager {
         intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, time);
         mContext.startActivity(intent);
         return true;
+    }
+
+    @Override
+    public int getBluetoothState() {
+        if (!isAvaliable()){
+            return BluetoothAdapter.STATE_OFF;
+        }
+        return mBluetoothAdapter.getState();
     }
 
     @Override
@@ -202,9 +211,17 @@ public class BluetoothManager implements BaseManager {
         if (mBluetoothService != null){
             mBluetoothService.stop();
         }
-        if (mContext != null && mReceiver != null){
-            mContext.unregisterReceiver(mReceiver);
+    }
+
+    /**
+     * Get connection state.
+     * @return
+     */
+    public int getConnectionState(){
+        if (mBluetoothService != null){
+            return mBluetoothService.getState();
         }
+        return State.STATE_UNKNOWN;
     }
 
     @Override
@@ -213,6 +230,13 @@ public class BluetoothManager implements BaseManager {
             mBluetoothService.write(data);
         }
     }
+
+//    public <T extends Object> void  write(T obj){
+//
+//        if (mBluetoothService != null){
+//
+//        }
+//    }
 
     /**
      * Get UUID.

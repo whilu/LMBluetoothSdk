@@ -45,6 +45,9 @@ public class BluetoothService {
     private BluetoothListener mBluetoothListener;
 
     private int mState;
+
+    // Hint: If you are connecting to a Bluetooth serial board then try
+    // using the well-known SPP UUID 00001101-0000-1000-8000-00805F9B34FB.
     private UUID mAppUuid = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
     public BluetoothService() {
@@ -85,6 +88,14 @@ public class BluetoothService {
         if (mBluetoothListener != null){
             mBluetoothListener.onBluetoothServiceStateChanged(state);
         }
+    }
+
+    /**
+     * Get the current state of connection.
+     * @return
+     */
+    public int getState() {
+        return mState;
     }
 
     /**
@@ -318,7 +329,7 @@ public class BluetoothService {
                 try {
                     bytes = mmInStream.read(buffer);
                     if (mBluetoothListener != null){
-                        mBluetoothListener.onReadData(buffer);
+                        mBluetoothListener.onReadData(mmSocket.getRemoteDevice(), buffer);
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
