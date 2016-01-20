@@ -20,7 +20,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -205,9 +204,7 @@ public class BluetoothService {
             BluetoothServerSocket tmp = null;
             try {
                 tmp = mAdapter.listenUsingRfcommWithServiceRecord(TAG, mAppUuid);
-            } catch (IOException e) {
-                Log.e(TAG, "listen() failed", e);
-            }
+            } catch (IOException e) {}
             mmServerSocket = tmp;
         }
         
@@ -217,7 +214,6 @@ public class BluetoothService {
                 try {
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
-                    Log.e(TAG, "accept() failed", e);
                     break;
                 }
                 if (socket != null) {
@@ -231,9 +227,7 @@ public class BluetoothService {
                             case co.lujun.lmbluetoothsdk.base.State.STATE_CONNECTED:
                                 try {
                                     socket.close();
-                                } catch (IOException e) {
-                                    Log.e(TAG, "Could not close unwanted socket", e);
-                                }
+                                } catch (IOException e) {}
                                 break;
                         }
                     }
@@ -244,9 +238,7 @@ public class BluetoothService {
         public void cancel() {
             try {
                 mmServerSocket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "close() of server failed", e);
-            }
+            } catch (IOException e) {}
         }
     }
 
@@ -263,9 +255,7 @@ public class BluetoothService {
             BluetoothSocket tmp = null;
             try {
                 tmp = device.createRfcommSocketToServiceRecord(mAppUuid);
-            } catch (IOException e) {
-                Log.e(TAG, "create() failed", e);
-            }
+            } catch (IOException e) {}
             mmSocket = tmp;
         }
         
@@ -277,9 +267,7 @@ public class BluetoothService {
                 setState(co.lujun.lmbluetoothsdk.base.State.STATE_LISTEN);
                 try {
                     mmSocket.close();
-                } catch (IOException e2) {
-                    Log.e(TAG, "unable to close() socket during connection failure", e2);
-                }
+                } catch (IOException e2) {}
                 BluetoothService.this.start();
                 return;
             }
@@ -292,9 +280,7 @@ public class BluetoothService {
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "close() of connect socket failed", e);
-            }
+            } catch (IOException e) {}
         }
     }
 
@@ -315,9 +301,7 @@ public class BluetoothService {
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) {
-                Log.e(TAG, "temp sockets not created", e);
-            }
+            } catch (IOException e) {}
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
         }
@@ -332,7 +316,6 @@ public class BluetoothService {
                         mBluetoothListener.onReadData(mmSocket.getRemoteDevice(), buffer);
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "disconnected", e);
                     setState(co.lujun.lmbluetoothsdk.base.State.STATE_LISTEN);
                     break;
                 }
@@ -346,17 +329,13 @@ public class BluetoothService {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-            } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
-            }
+            } catch (IOException e) {}
         }
 
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "close() of connect socket failed", e);
-            }
+            } catch (IOException e) {}
         }
     }
 }
