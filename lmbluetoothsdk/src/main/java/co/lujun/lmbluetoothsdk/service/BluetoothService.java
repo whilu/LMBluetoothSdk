@@ -214,7 +214,7 @@ public class BluetoothService {
                     FileInputStream in = new FileInputStream(path + "/" + fileName);
                     byte[] buffer = new byte[1024];
                     int len;
-                    while ((len = in.read(buffer, 0, buffer.length)) != -1){
+                    while ((len = in.read(buffer)) != -1){
                         r.write(buffer, 0, len);
                     }
                     in.close();

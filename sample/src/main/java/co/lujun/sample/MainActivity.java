@@ -106,11 +106,11 @@ public class MainActivity extends AppCompatActivity {
                         String deviceName = device == null ? "" : device.getName();
                         tvContent.append(deviceName + ": " + new String(data) + "\n");
                         Log.d("debugss", "" + data.length);
-                        if (data.length == 5331) {
+//                        if (data.length == 5331) {
                             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                             ivRec.setImageBitmap(bitmap);
                         }
-                    }
+//                    }
                 });
             }
         });
