@@ -20,7 +20,10 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -188,7 +191,37 @@ public class BluetoothService {
             }
             r = mConnectedThread;
         }
-        r.write(out);
+        r.write(out, 0, out.length);
+    }
+
+    /**
+     * Write a file as bytes to the ConnectedThread in an unsynchronized manner.
+     * @param path
+     * @param fileName
+     */
+    public void write(final String path, final String fileName){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ConnectedThread r;
+                synchronized (this) {
+                    if (mState != State.STATE_CONNECTED) {
+                        return;
+                    }
+                    r = mConnectedThread;
+                }
+                try {
+                    FileInputStream in = new FileInputStream(path + "/" + fileName);
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = in.read(buffer, 0, buffer.length)) != -1){
+                        r.write(buffer, 0, len);
+                    }
+                    in.close();
+                }catch (IOException e){}
+
+            }
+        }).start();
     }
 
     /**
@@ -326,9 +359,9 @@ public class BluetoothService {
          * Write to the connected OutStream.
          * @param buffer The bytes to write
          */
-        public void write(byte[] buffer) {
+        public void write(byte[] buffer, int start, int end) {
             try {
-                mmOutStream.write(buffer);
+                mmOutStream.write(buffer, start, end);
             } catch (IOException e) {}
         }
 

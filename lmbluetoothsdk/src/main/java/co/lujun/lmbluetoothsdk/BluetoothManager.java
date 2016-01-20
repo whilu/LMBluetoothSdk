@@ -231,12 +231,16 @@ public class BluetoothManager implements BaseManager {
         }
     }
 
-//    public <T extends Object> void  write(T obj){
-//
-//        if (mBluetoothService != null){
-//
-//        }
-//    }
+    /**
+     * Send a file.
+     * @param path
+     * @param fileName
+     */
+    public void write(String path, String fileName){
+        if (mBluetoothService != null){
+            mBluetoothService.write(path, fileName);
+        }
+    }
 
     /**
      * Get UUID.

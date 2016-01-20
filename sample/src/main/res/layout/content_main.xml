@@ -76,8 +76,8 @@
             android:layout_height="30dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="10sp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:textSize="10sp" />
 
         <TextView
             android:id="@+id/tv_connect_state"
@@ -85,8 +85,8 @@
             android:layout_height="30dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="10sp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:textSize="10sp" />
 
     </LinearLayout>
 
@@ -95,16 +95,30 @@
         android:layout_height="1dp"
         android:background="#666666" />
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_chat_content"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="150dp"
+            android:layout_weight="1">
 
-    </ScrollView>
+            <TextView
+                android:id="@+id/tv_chat_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </ScrollView>
+
+        <ImageView
+            android:id="@+id/iv_rec"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -123,6 +137,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="发送" />
+
+        <Button
+            android:id="@+id/btn_send_file"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="发送图片" />
 
     </LinearLayout>
 </LinearLayout>

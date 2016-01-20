@@ -2,25 +2,26 @@ package co.lujun.sample;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,12 +34,12 @@ public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager mBluetoothManager;
     
-    private Button btnScanAvaliabe, btnScan, btnSend, btnOpen, btnStartServer, btnDisconnect;
+    private Button btnScanAvaliabe, btnScan, btnSend, btnOpen, btnStartServer, btnDisconnect, btnSendFile;
     private TextView tvContent, tvConnectState, tvBTState;
     private EditText etSend;
     private ListView lvDevices;
+    private ImageView ivRec;
 
-    private List<BluetoothDevice> mDevicesList;
     private List<String> mList;
     private BaseAdapter mFoundAdapter;
     private int mConnectState;
@@ -92,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onActionDeviceFound(BluetoothDevice device) {
-                mDevicesList.add(device);
                 mList.add(device.getName() + "@" + device.getAddress());
                 mFoundAdapter.notifyDataSetChanged();
             }
@@ -105,14 +105,18 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         String deviceName = device == null ? "" : device.getName();
                         tvContent.append(deviceName + ": " + new String(data) + "\n");
+                        Log.d("debugss", "" + data.length);
+                        if (data.length == 5331) {
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                            ivRec.setImageBitmap(bitmap);
+                        }
                     }
                 });
             }
         });
     }
-    
+    private byte[] bytes = new byte[5331];
     private void init(){
-        mDevicesList = new ArrayList<BluetoothDevice>();
         mList = new ArrayList<String>();
         mFoundAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mList);
         
@@ -122,11 +126,13 @@ public class MainActivity extends AppCompatActivity {
         btnOpen = (Button) findViewById(R.id.btn_open_bt);
         btnStartServer = (Button) findViewById(R.id.btn_start_as_server);
         btnDisconnect = (Button) findViewById(R.id.btn_disconnect);
+        btnSendFile = (Button) findViewById(R.id.btn_send_file);
         tvContent = (TextView) findViewById(R.id.tv_chat_content);
         tvConnectState = (TextView) findViewById(R.id.tv_connect_state);
         tvBTState = (TextView) findViewById(R.id.tv_bt_state);
         etSend = (EditText) findViewById(R.id.et_send_content);
         lvDevices = (ListView) findViewById(R.id.lv_devices);
+        ivRec = (ImageView) findViewById(R.id.iv_rec);
 
         initBT();
 
@@ -146,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mList.clear();
+                mFoundAdapter.notifyDataSetChanged();
                 if(!mBluetoothManager.startScan()){
                     Toast.makeText(MainActivity.this, "Start scan failed!",
                             Toast.LENGTH_SHORT).show();
@@ -164,6 +172,12 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mBluetoothManager.write(msg.getBytes());
                 tvContent.append("Me: " + msg + "\n");
+            }
+        });
+        btnSendFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBluetoothManager.write(Environment.getExternalStorageDirectory().getPath(), "1234321.png");
             }
         });
         btnOpen.setOnClickListener(new View.OnClickListener() {
