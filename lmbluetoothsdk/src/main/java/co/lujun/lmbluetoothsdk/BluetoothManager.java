@@ -55,6 +55,10 @@ public class BluetoothManager implements BaseManager {
 
     private static BluetoothManager sBluetoothManager;
 
+    /**
+     * Get current instance as singleton.
+     * @return BluetoothManager instance
+     */
     public static BluetoothManager getInstance(){
         if (sBluetoothManager == null){
             synchronized (BluetoothManager.class){
@@ -68,8 +72,8 @@ public class BluetoothManager implements BaseManager {
 
     /**
      * Build this instance.
-     * @param context
-     * @return
+     * @param context the current context you use
+     * @return BluetoothManager instance
      */
     public BluetoothManager build(Context context){
         mContext = context;
@@ -80,7 +84,7 @@ public class BluetoothManager implements BaseManager {
 
     /**
      * Set bluetooth listener, you can check all bluetooth status and read data with this listener's callback.
-     * @param listener
+     * @param listener a BluetoothListener
      */
     public void setBluetoothListener(BluetoothListener listener){
         this.mBluetoothListener = listener;
@@ -90,6 +94,9 @@ public class BluetoothManager implements BaseManager {
         }
     }
 
+    /**
+     * Register broadcast receiver for current context.
+     */
     private void registerReceiver(){
         if (mBluetoothListener == null || mContext == null){
             return;
@@ -107,13 +114,13 @@ public class BluetoothManager implements BaseManager {
     }
 
     @Override
-    public boolean isAvaliable(){
+    public boolean isAvailable(){
         return mBluetoothAdapter != null;
     }
 
     @Override
-    public boolean isEnabled(){
-        if (isAvaliable()){
+    public boolean isEnabled() {
+        if (isAvailable()){
             return mBluetoothAdapter.isEnabled();
         }
         return false;
@@ -121,7 +128,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public boolean openBluetooth(){
-        if (!isAvaliable()){
+        if (!isAvailable()){
             return false;
         }
         return mBluetoothAdapter.enable();
@@ -129,7 +136,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public void closeBluetooth(){
-        if (!isAvaliable() && !isEnabled()){
+        if (!isAvailable() && !isEnabled()){
             return;
         }
         mBluetoothAdapter.disable();
@@ -137,7 +144,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public boolean setDiscoverable(int time){
-        if (!isAvaliable() && !isEnabled()){
+        if (!isAvailable() && !isEnabled()){
             return false;
         }
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -148,7 +155,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public int getBluetoothState() {
-        if (!isAvaliable()){
+        if (!isAvailable()){
             return BluetoothAdapter.STATE_OFF;
         }
         return mBluetoothAdapter.getState();
@@ -156,7 +163,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public boolean startScan() {
-        if (!isAvaliable() && !isEnabled()){
+        if (!isAvailable() && !isEnabled()){
             return false;
         }
         return mBluetoothAdapter.startDiscovery();
@@ -164,7 +171,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public boolean cancelScan() {
-        if (!isAvaliable() && !isEnabled()){
+        if (!isAvailable() && !isEnabled()){
             return false;
         }
         return mBluetoothAdapter.cancelDiscovery();
@@ -172,7 +179,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public Set<BluetoothDevice> getBondedDevices(){
-        if (!isAvaliable() || !isEnabled()){
+        if (!isAvailable() || !isEnabled()){
             throw new RuntimeException("Bluetooth is not avaliable!");
         }
         return mBluetoothAdapter.getBondedDevices();
@@ -180,7 +187,7 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public BluetoothDevice findDeviceByMac(String mac){
-        if (!isAvaliable() || !isEnabled()){
+        if (!isAvailable() || !isEnabled()){
             throw new RuntimeException("Bluetooth is not avaliable!");
         }
         return mBluetoothAdapter.getRemoteDevice(mac);
@@ -195,13 +202,26 @@ public class BluetoothManager implements BaseManager {
 
     @Override
     public void connect(String mac){
-        if (!isAvaliable() || !isEnabled()){
+        if (!isAvailable() || !isEnabled()){
             throw new RuntimeException("Bluetooth is not avaliable!");
         }
         if (mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
         }
         if (mBluetoothService != null){
+            mBluetoothService.connect(mBluetoothAdapter.getRemoteDevice(mac));
+        }
+    }
+
+    @Override
+    public void reConnect(String mac) {
+        if (!isAvailable() || !isEnabled()){
+            throw new RuntimeException("Bluetooth is not avaliable!");
+        }
+        if (mBluetoothAdapter.isDiscovering()){
+            mBluetoothAdapter.cancelDiscovery();
+        }
+        if (getConnectionState() == State.STATE_DISCONNECTED && mBluetoothService != null){
             mBluetoothService.connect(mBluetoothAdapter.getRemoteDevice(mac));
         }
     }
@@ -215,13 +235,9 @@ public class BluetoothManager implements BaseManager {
 
     /**
      * Get connection state.
-     * @return the connection state,
-     * Possible return values are
-     * State.STATE_NONE,
-     * State.STATE_LISTEN,
-     * State.STATE_CONNECTING,
-     * State.STATE_CONNECTED,
-     * State.STATE_UNKNOWN.
+     * Possible return values are STATE_NONE, STATE_LISTEN, STATE_CONNECTING, STATE_CONNECTED,
+     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link co.lujun.lmbluetoothsdk.base.State} class.
+     * @return the connection state
      */
     public int getConnectionState(){
         if (mBluetoothService != null){

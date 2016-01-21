@@ -254,6 +254,7 @@ public class BluetoothService {
                         switch (mState) {
                             case co.lujun.lmbluetoothsdk.base.State.STATE_LISTEN:
                             case co.lujun.lmbluetoothsdk.base.State.STATE_CONNECTING:
+                            case co.lujun.lmbluetoothsdk.base.State.STATE_DISCONNECTED:
                                 connected(socket);
                                 break;
                             case co.lujun.lmbluetoothsdk.base.State.STATE_NONE:
@@ -349,7 +350,7 @@ public class BluetoothService {
                         mBluetoothListener.onReadData(mmSocket.getRemoteDevice(), buffer);
                     }
                 } catch (IOException e) {
-                    setState(co.lujun.lmbluetoothsdk.base.State.STATE_LISTEN);
+                    setState(co.lujun.lmbluetoothsdk.base.State.STATE_DISCONNECTED);
                     break;
                 }
             }

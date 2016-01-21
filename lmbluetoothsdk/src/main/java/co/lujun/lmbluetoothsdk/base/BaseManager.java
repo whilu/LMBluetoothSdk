@@ -37,14 +37,14 @@ import java.util.Set;
 public interface BaseManager {
 
     /**
-     * Is current device's bluetooth avaliable.
-     * @return true if current device's bluetooth is avaliable
+     * Is current device's bluetooth available.
+     * @return true if current device's bluetooth is available
      */
-    boolean isAvaliable();
+    boolean isAvailable();
 
     /**
      * Is current device's bluetooth opened.
-     * @return true id current device's bluetooth is enabled
+     * @return true id current device's bluetooth is enabled, you should first check whether the bluetooth is available use {@link #isAvailable}
      */
     boolean isEnabled();
 
@@ -61,7 +61,7 @@ public interface BaseManager {
 
     /**
      * Set bluetooth discoverable with specified time.
-     * @param time the time(unit s) of the device's bluetooth can be found
+     * @param time the time(unit seconds) of the device's bluetooth can be found
      * @return true if set discoverable operation success
      */
     boolean setDiscoverable(int time);
@@ -69,12 +69,9 @@ public interface BaseManager {
     /**
      * Get current bluetooth state.
      * @return an integer value represent the bluetooth state,
-     * Possible return values are
-     * BluetoothAdapter.STATE_OFF,
-     * BluetoothAdapter.STATE_TURNING_ON,
-     * BluetoothAdapter.STATE_ON,
-     * BluetoothAdapter.STATE_TURNING_OFF.
-     * Requires android.Manifest.permission.BLUETOOTH
+     * Possible return values are STATE_OFF, STATE_TURNING_ON, STATE_ON, STATE_TURNING_OFF
+     * in {@link android.bluetooth.BluetoothAdapter} class.
+     * Requires android.Manifest.permission.BLUETOOTH permission.
      */
     int getBluetoothState();
 
@@ -97,8 +94,8 @@ public interface BaseManager {
     Set<BluetoothDevice> getBondedDevices();
 
     /**
-     * Find a bluetooth device by mac address.
-     * @param mac the bluetooth mac address
+     * Find a bluetooth device by MAC address.
+     * @param mac the bluetooth MAC address
      * @return a remote bluetooth device
      */
     BluetoothDevice findDeviceByMac(String mac);
@@ -109,10 +106,16 @@ public interface BaseManager {
     void startAsServer();
 
     /**
-     * Connected a bluetooth device by mac address.
-     * @param mac the bluetooth mac address
+     * Connected a bluetooth device by MAC address.
+     * @param mac the bluetooth MAC address
      */
     void connect(String mac);
+
+    /**
+     * Reconnect a bluetooth device by MAC address when the connection is lost.
+     * @param mac the bluetooth MAC address, like the {@link #connect} method parameter
+     */
+    void reConnect(String mac);
 
     /**
      * Disconnect connection.

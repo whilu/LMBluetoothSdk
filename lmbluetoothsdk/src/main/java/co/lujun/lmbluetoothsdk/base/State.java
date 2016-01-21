@@ -18,6 +18,9 @@ public class State {
     /** now connected to a remote device*/
     public static final int STATE_CONNECTED = 3;
 
+    /** lost the connection*/
+    public static final int STATE_DISCONNECTED = 4;
+
     /** unknown state*/
-    public static final int STATE_UNKNOWN = 4;
+    public static final int STATE_UNKNOWN = 5;
 }

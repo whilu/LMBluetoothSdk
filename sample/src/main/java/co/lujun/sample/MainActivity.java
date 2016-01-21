@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<String> mList;
     private BaseAdapter mFoundAdapter;
+    private String mMacAddress;
     private int mConnectState;
 
     private static final String TAG = "LMBluetoothSdk";
@@ -85,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (state == State.STATE_DISCONNECTED) {
+                            mBluetoothManager.reConnect(mMacAddress);
+                        }
                         mConnectState = state;
                         tvConnectState.setText("Connection state: " + transConnStateAsString(state));
                     }
@@ -107,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
                         tvContent.append(deviceName + ": " + new String(data) + "\n");
                         Log.d("debugss", "" + data.length);
 //                        if (data.length == 5331) {
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                            ivRec.setImageBitmap(bitmap);
-                        }
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        ivRec.setImageBitmap(bitmap);
+                    }
 //                    }
                 });
             }
@@ -214,7 +218,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String itemStr = mList.get(position);
-                mBluetoothManager.connect(itemStr.substring(itemStr.length() - 17));
+                mMacAddress = itemStr.substring(itemStr.length() - 17);
+                mBluetoothManager.connect(mMacAddress);
             }
         });
     }
@@ -243,7 +248,9 @@ public class MainActivity extends AppCompatActivity {
             result = "CONNECTING";
         } else if (state == State.STATE_CONNECTED) {
             result = "CONNECTED";
-        } else {
+        } else if (state == State.STATE_DISCONNECTED){
+            result = "DISCONNECTED";
+        }else {
             result = "UNKNOWN";
         }
         return result;
