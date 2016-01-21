@@ -21,6 +21,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager mBluetoothManager;
     
-    private Button btnScanAvaliabe, btnScan, btnSend, btnOpen, btnStartServer, btnDisconnect, btnSendFile;
+    private Button btnScanAvaliabe, btnScan, btnSend, btnOpen, btnStartServer, btnDisconnect;
     private TextView tvContent, tvConnectState, tvBTState;
     private EditText etSend;
     private ListView lvDevices;
-    private ImageView ivRec;
 
     private List<String> mList;
     private BaseAdapter mFoundAdapter;
@@ -109,17 +111,12 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         String deviceName = device == null ? "" : device.getName();
                         tvContent.append(deviceName + ": " + new String(data) + "\n");
-                        Log.d("debugss", "" + data.length);
-//                        if (data.length == 5331) {
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                        ivRec.setImageBitmap(bitmap);
                     }
-//                    }
                 });
             }
         });
     }
-    private byte[] bytes = new byte[5331];
+
     private void init(){
         mList = new ArrayList<String>();
         mFoundAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mList);
@@ -130,13 +127,11 @@ public class MainActivity extends AppCompatActivity {
         btnOpen = (Button) findViewById(R.id.btn_open_bt);
         btnStartServer = (Button) findViewById(R.id.btn_start_as_server);
         btnDisconnect = (Button) findViewById(R.id.btn_disconnect);
-        btnSendFile = (Button) findViewById(R.id.btn_send_file);
         tvContent = (TextView) findViewById(R.id.tv_chat_content);
         tvConnectState = (TextView) findViewById(R.id.tv_connect_state);
         tvBTState = (TextView) findViewById(R.id.tv_bt_state);
         etSend = (EditText) findViewById(R.id.et_send_content);
         lvDevices = (ListView) findViewById(R.id.lv_devices);
-        ivRec = (ImageView) findViewById(R.id.iv_rec);
 
         initBT();
 
@@ -176,12 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mBluetoothManager.write(msg.getBytes());
                 tvContent.append("Me: " + msg + "\n");
-            }
-        });
-        btnSendFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBluetoothManager.write(Environment.getExternalStorageDirectory().getPath(), "1234321.png");
+                etSend.setText("");
             }
         });
         btnOpen.setOnClickListener(new View.OnClickListener() {
@@ -255,4 +245,13 @@ public class MainActivity extends AppCompatActivity {
         }
         return result;
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mBluetoothManager != null){
+            mBluetoothManager.release();
+        }
+    }
 }
+

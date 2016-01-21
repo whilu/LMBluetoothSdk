@@ -24,6 +24,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,23 +60,23 @@ public class BluetoothService {
 
     /**
      * Set bluetooth listener.
-     * @param listener
+     * @param listener BluetoothListener
      */
     public synchronized void setBluetoothListener(BluetoothListener listener) {
         this.mBluetoothListener = listener;
     }
 
     /**
-     * Get UUID.
-     * @return
+     * Get current SDP recorded UUID.
+     * @return an UUID
      */
     public UUID getAppUuid() {
         return mAppUuid;
     }
 
     /**
-     * Set UUID.
-     * @param uuid
+     * Set a UUID for SDP record.
+     * @param uuid an UUID
      */
     public void setAppUuid(UUID uuid) {
         this.mAppUuid = uuid;
@@ -94,7 +95,9 @@ public class BluetoothService {
 
     /**
      * Get the current state of connection.
-     * @return
+     * Possible return values are STATE_NONE, STATE_LISTEN, STATE_CONNECTING, STATE_CONNECTED,
+     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link co.lujun.lmbluetoothsdk.base.State} class.
+     * @return the connection state
      */
     public int getState() {
         return mState;
@@ -102,7 +105,6 @@ public class BluetoothService {
 
     /**
      * Start AcceptThread to begin a session in listening (server) mode.
-     * Called by the Activity onResume()
      */
     public synchronized void start() {
         if (mConnectThread != null) {
@@ -122,7 +124,7 @@ public class BluetoothService {
 
     /**
      * Start the ConnectThread to initiate a connection to a remote device.
-     * @param device  The BluetoothDevice to connect
+     * @param device The BluetoothDevice to connect
      */
     public synchronized void connect(BluetoothDevice device) {
         if (mState == State.STATE_CONNECTING && mConnectThread != null) {
@@ -137,9 +139,10 @@ public class BluetoothService {
         mConnectThread.start();
         setState(State.STATE_CONNECTING);
     }
+
     /**
      * Start the ConnectedThread to begin managing a Bluetooth connection.
-     * @param socket  The BluetoothSocket on which the connection was made
+     * @param socket The BluetoothSocket on which the connection was made
      */
     public synchronized void connected(BluetoothSocket socket) {
         if (mConnectThread != null) {
@@ -181,7 +184,6 @@ public class BluetoothService {
     /**
      * Write to the ConnectedThread in an unsynchronized manner.
      * @param out The bytes to write
-     * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
         ConnectedThread r;
@@ -196,10 +198,10 @@ public class BluetoothService {
 
     /**
      * Write a file as bytes to the ConnectedThread in an unsynchronized manner.
-     * @param path
-     * @param fileName
+     * @param path the file path
+     * @param fileName the file name
      */
-    public void write(final String path, final String fileName){
+    /*public void write(final String path, final String fileName){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -222,7 +224,7 @@ public class BluetoothService {
 
             }
         }).start();
-    }
+    }*/
 
     /**
      * This thread runs while listening for incoming connections. It behaves

@@ -221,7 +221,8 @@ public class BluetoothManager implements BaseManager {
         if (mBluetoothAdapter.isDiscovering()){
             mBluetoothAdapter.cancelDiscovery();
         }
-        if (getConnectionState() == State.STATE_DISCONNECTED && mBluetoothService != null){
+        if (getConnectionState() == State.STATE_DISCONNECTED
+                && mBluetoothService != null && mac != null){
             mBluetoothService.connect(mBluetoothAdapter.getRemoteDevice(mac));
         }
     }
@@ -231,6 +232,16 @@ public class BluetoothManager implements BaseManager {
         if (mBluetoothService != null){
             mBluetoothService.stop();
         }
+    }
+
+    /**
+     * Release the instance resources.
+     * if you want to use again, use {@link #build(Context)} to build again.
+     */
+    public void release(){
+        mContext.unregisterReceiver(mReceiver);
+        mBluetoothService = null;
+        mBluetoothAdapter = null;
     }
 
     /**
@@ -250,17 +261,6 @@ public class BluetoothManager implements BaseManager {
     public void write(byte[] data) {
         if (mBluetoothService != null){
             mBluetoothService.write(data);
-        }
-    }
-
-    /**
-     * Send a file.
-     * @param path the file's path
-     * @param fileName file name
-     */
-    public void write(String path, String fileName){
-        if (mBluetoothService != null){
-            mBluetoothService.write(path, fileName);
         }
     }
 
