@@ -20,11 +20,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,6 +42,7 @@ public class BluetoothService {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private BluetoothListener mBluetoothListener;
+    private BluetoothDevice mBluetoothDevice;
 
     private int mState;
 
@@ -159,6 +156,7 @@ public class BluetoothService {
         }
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
+        mBluetoothDevice = socket.getRemoteDevice();
         setState(State.STATE_CONNECTED);
     }
 
@@ -178,6 +176,7 @@ public class BluetoothService {
             mAcceptThread.cancel();
             mAcceptThread = null;
         }
+        mBluetoothDevice = null;
         setState(State.STATE_NONE);
     }
 
@@ -225,6 +224,14 @@ public class BluetoothService {
             }
         }).start();
     }*/
+
+    /**
+     * Get connected device.
+     * @return a bluetooth device
+     */
+    public BluetoothDevice getConnectedDevice(){
+        return mBluetoothDevice;
+    }
 
     /**
      * This thread runs while listening for incoming connections. It behaves

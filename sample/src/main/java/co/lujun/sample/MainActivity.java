@@ -2,10 +2,8 @@ package co.lujun.sample;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -16,38 +14,71 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import co.lujun.lmbluetoothsdk.BluetoothManager;
+import co.lujun.lmbluetoothsdk.BluetoothController;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
 import co.lujun.lmbluetoothsdk.base.State;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BluetoothManager mBluetoothManager;
+    private BluetoothController mBluetoothController;
     
-    private Button btnScanAvaliabe, btnScan, btnSend, btnOpen, btnStartServer, btnDisconnect;
-    private TextView tvContent, tvConnectState, tvBTState;
-    private EditText etSend;
+    private Button btnScanAvaliabe, btnScan, btnOpen, btnStartServer;
+    private TextView tvBTState;
     private ListView lvDevices;
 
     private List<String> mList;
     private BaseAdapter mFoundAdapter;
     private String mMacAddress;
-    private int mConnectState;
 
     private static final String TAG = "LMBluetoothSdk";
+
+    private BluetoothListener mListener = new BluetoothListener() {
+        @Override
+        public void onActionStateChanged(int preState, int state) {
+            tvBTState.setText("Bluetooth state: " + transBtStateAsString(state));
+        }
+
+        @Override
+        public void onActionDiscoveryStateChanged(String discoveryState) {
+            if (discoveryState.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
+                Toast.makeText(MainActivity.this, "scanning!", Toast.LENGTH_SHORT).show();
+            } else if (discoveryState.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
+                Toast.makeText(MainActivity.this, "scan finished!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onActionScanModeChanged(int preScanMode, int scanMode) {
+            Log.d(TAG, "preScanMode:" + preScanMode + ", scanMode:" + scanMode);
+        }
+
+        @Override
+        public void onBluetoothServiceStateChanged(int state) {
+            Log.d(TAG, "bluetooth service state:" + state);
+            if (state == State.STATE_CONNECTED) {
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                startActivityForResult(intent, 4);
+            }
+        }
+
+        @Override
+        public void onActionDeviceFound(BluetoothDevice device) {
+            mList.add(device.getName() + "@" + device.getAddress());
+            mFoundAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onReadData(final BluetoothDevice device, final byte[] data) {
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,61 +91,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initBT(){
-        mBluetoothManager = BluetoothManager.getInstance().build(this);
-        mBluetoothManager.setAppUuid(UUID.fromString("fa87c0d0-afac-12de-8a39-0450200c9a66"));
-        mBluetoothManager.setBluetoothListener(new BluetoothListener() {
-            @Override
-            public void onActionStateChanged(int preState, int state) {
-                tvBTState.setText("BT state: " + transBtStateAsString(state));
-            }
+        mBluetoothController = BluetoothController.getInstance().build(this);
+        mBluetoothController.setAppUuid(UUID.fromString("fa87c0d0-afac-12de-8a39-0450200c9a66"));
+        mBluetoothController.setBluetoothListener(mListener);
 
-            @Override
-            public void onActionDiscoveryStateChanged(String discoveryState) {
-                if (discoveryState.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                    Toast.makeText(MainActivity.this, "scanning!", Toast.LENGTH_SHORT).show();
-                } else if (discoveryState.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
-                    Toast.makeText(MainActivity.this, "scan finished!", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onActionScanModeChanged(int preScanMode, int scanMode) {
-                Log.d(TAG, "preScanMode:" + preScanMode + ", scanMode:" + scanMode);
-            }
-
-            @Override
-            public void onBluetoothServiceStateChanged(final int state) {
-                // If you want to update UI, please run this on UI thread
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (state == State.STATE_DISCONNECTED) {
-                            mBluetoothManager.reConnect(mMacAddress);
-                        }
-                        mConnectState = state;
-                        tvConnectState.setText("Connection state: " + transConnStateAsString(state));
-                    }
-                });
-            }
-
-            @Override
-            public void onActionDeviceFound(BluetoothDevice device) {
-                mList.add(device.getName() + "@" + device.getAddress());
-                mFoundAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onReadData(final BluetoothDevice device, final byte[] data) {
-                // If you want to update UI, please run this on UI thread
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String deviceName = device == null ? "" : device.getName();
-                        tvContent.append(deviceName + ": " + new String(data) + "\n");
-                    }
-                });
-            }
-        });
+        tvBTState.setText("Bluetooth state: "
+                + transBtStateAsString(mBluetoothController.getBluetoothState()));
     }
 
     private void init(){
@@ -123,28 +105,18 @@ public class MainActivity extends AppCompatActivity {
         
         btnScanAvaliabe = (Button) findViewById(R.id.btn_scan_avaliable);
         btnScan = (Button) findViewById(R.id.btn_scan);
-        btnSend = (Button) findViewById(R.id.btn_send);
         btnOpen = (Button) findViewById(R.id.btn_open_bt);
         btnStartServer = (Button) findViewById(R.id.btn_start_as_server);
-        btnDisconnect = (Button) findViewById(R.id.btn_disconnect);
-        tvContent = (TextView) findViewById(R.id.tv_chat_content);
-        tvConnectState = (TextView) findViewById(R.id.tv_connect_state);
         tvBTState = (TextView) findViewById(R.id.tv_bt_state);
-        etSend = (EditText) findViewById(R.id.et_send_content);
         lvDevices = (ListView) findViewById(R.id.lv_devices);
 
-        initBT();
-
         lvDevices.setAdapter(mFoundAdapter);
-        tvConnectState.setText("Connection state: "
-                + transConnStateAsString(mBluetoothManager.getConnectionState()));
-        tvBTState.setText("BT state: "
-                + transBtStateAsString(mBluetoothManager.getBluetoothState()));
+        initBT();
 
         btnScanAvaliabe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBluetoothManager.setDiscoverable(600);
+                mBluetoothController.setDiscoverable(60);
             }
         });
 
@@ -153,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mList.clear();
                 mFoundAdapter.notifyDataSetChanged();
-                if(!mBluetoothManager.startScan()){
+                if(!mBluetoothController.startScan()){
                     Toast.makeText(MainActivity.this, "Start scan failed!",
                             Toast.LENGTH_SHORT).show();
                 }else {
@@ -162,23 +134,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String msg = etSend.getText().toString();
-                if (TextUtils.isEmpty(msg)) {
-                    return;
-                }
-                mBluetoothManager.write(msg.getBytes());
-                tvContent.append("Me: " + msg + "\n");
-                etSend.setText("");
-            }
-        });
         btnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mBluetoothManager.isEnabled()) {
-                    mBluetoothManager.openBluetooth();
+                if (!mBluetoothController.isEnabled()) {
+                    mBluetoothController.openBluetooth();
                 } else {
                     Toast.makeText(MainActivity.this, "Bluetooth has opened!",
                             Toast.LENGTH_SHORT).show();
@@ -188,20 +148,9 @@ public class MainActivity extends AppCompatActivity {
         btnStartServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBluetoothManager.startAsServer();
+                mBluetoothController.startAsServer();
                 Toast.makeText(MainActivity.this, "Start as a server!",
                         Toast.LENGTH_SHORT).show();
-            }
-        });
-        btnDisconnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mConnectState == State.STATE_CONNECTED) {
-                    mBluetoothManager.disconnect();
-                }else {
-                    Toast.makeText(MainActivity.this, "Connect is unavaliable!",
-                            Toast.LENGTH_SHORT).show();
-                }
             }
         });
         lvDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -209,7 +158,10 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String itemStr = mList.get(position);
                 mMacAddress = itemStr.substring(itemStr.length() - 17);
-                mBluetoothManager.connect(mMacAddress);
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                intent.putExtra("name", itemStr.substring(0, itemStr.length() - 18));
+                intent.putExtra("mac", mMacAddress);
+                startActivityForResult(intent, 4);
             }
         });
     }
@@ -228,29 +180,11 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    private String transConnStateAsString(int state){
-        String result;
-        if (state == State.STATE_NONE) {
-            result = "NONE";
-        } else if (state == State.STATE_LISTEN) {
-            result = "LISTEN";
-        } else if (state == State.STATE_CONNECTING) {
-            result = "CONNECTING";
-        } else if (state == State.STATE_CONNECTED) {
-            result = "CONNECTED";
-        } else if (state == State.STATE_DISCONNECTED){
-            result = "DISCONNECTED";
-        }else {
-            result = "UNKNOWN";
-        }
-        return result;
-    }
-
     @Override
-    protected void onStop() {
-        super.onStop();
-        if (mBluetoothManager != null){
-            mBluetoothManager.release();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 4){
+            mBluetoothController.setBluetoothListener(mListener);
         }
     }
 }

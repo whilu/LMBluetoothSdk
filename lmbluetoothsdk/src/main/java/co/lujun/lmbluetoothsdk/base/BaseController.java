@@ -34,7 +34,7 @@ import java.util.Set;
  * Author: lujun(http://blog.lujun.co)
  * Date: 2016-1-15 11:52
  */
-public interface BaseManager {
+public interface BaseController {
 
     /**
      * Is current device's bluetooth available.
@@ -44,7 +44,8 @@ public interface BaseManager {
 
     /**
      * Is current device's bluetooth opened.
-     * @return true id current device's bluetooth is enabled, you should first check whether the bluetooth is available use {@link #isAvailable}
+     * @return true id current device's bluetooth is enabled,
+     * you should first check whether the bluetooth is available use {@link #isAvailable}
      */
     boolean isEnabled();
 
@@ -127,4 +128,10 @@ public interface BaseManager {
      * @param data the byte array represent the data
      */
     void write(byte[] data);
+
+    /**
+     * Get the connected remote device if connection is available, else return null
+     * @return a connected remote device
+     */
+    BluetoothDevice getConnectedDevice();
 }

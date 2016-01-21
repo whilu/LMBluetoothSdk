@@ -35,7 +35,7 @@ import android.content.IntentFilter;
 import java.util.Set;
 import java.util.UUID;
 
-import co.lujun.lmbluetoothsdk.base.BaseManager;
+import co.lujun.lmbluetoothsdk.base.BaseController;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
 import co.lujun.lmbluetoothsdk.base.State;
 import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
@@ -45,7 +45,7 @@ import co.lujun.lmbluetoothsdk.service.BluetoothService;
  * Author: lujun(http://blog.lujun.co)
  * Date: 2016-1-14 10:59
  */
-public class BluetoothManager implements BaseManager {
+public class BluetoothController implements BaseController {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothListener mBluetoothListener;
@@ -53,29 +53,29 @@ public class BluetoothManager implements BaseManager {
     private BlueToothReceiver mReceiver;
     private Context mContext;
 
-    private static BluetoothManager sBluetoothManager;
+    private static BluetoothController sBluetoothController;
 
     /**
      * Get current instance as singleton.
-     * @return BluetoothManager instance
+     * @return BluetoothController instance
      */
-    public static BluetoothManager getInstance(){
-        if (sBluetoothManager == null){
-            synchronized (BluetoothManager.class){
-                if (sBluetoothManager == null){
-                    sBluetoothManager = new BluetoothManager();
+    public static BluetoothController getInstance(){
+        if (sBluetoothController == null){
+            synchronized (BluetoothController.class){
+                if (sBluetoothController == null){
+                    sBluetoothController = new BluetoothController();
                 }
             }
         }
-        return sBluetoothManager;
+        return sBluetoothController;
     }
 
     /**
      * Build this instance.
      * @param context the current context you use
-     * @return BluetoothManager instance
+     * @return BluetoothController instance
      */
-    public BluetoothManager build(Context context){
+    public BluetoothController build(Context context){
         mContext = context;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothService = new BluetoothService();
@@ -247,7 +247,7 @@ public class BluetoothManager implements BaseManager {
     /**
      * Get connection state.
      * Possible return values are STATE_NONE, STATE_LISTEN, STATE_CONNECTING, STATE_CONNECTED,
-     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link co.lujun.lmbluetoothsdk.base.State} class.
+     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link State} class.
      * @return the connection state
      */
     public int getConnectionState(){
@@ -283,5 +283,13 @@ public class BluetoothManager implements BaseManager {
         if (mBluetoothService != null){
             mBluetoothService.setAppUuid(uuid);
         }
+    }
+
+    @Override
+    public BluetoothDevice getConnectedDevice() {
+        if (mBluetoothService != null){
+            return mBluetoothService.getConnectedDevice();
+        }
+        return null;
     }
 }
