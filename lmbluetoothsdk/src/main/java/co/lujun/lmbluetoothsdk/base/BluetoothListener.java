@@ -69,8 +69,8 @@ public interface BluetoothListener {
 
     /**
      * Callback when remote device send data to current device.
-     * @param device
-     * @param data
+     * @param device, the connected device
+     * @param data, the bytes to read
      */
     void onReadData(BluetoothDevice device, byte[] data);
 }
