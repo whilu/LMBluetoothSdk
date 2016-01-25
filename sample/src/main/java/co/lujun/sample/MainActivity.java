@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BluetoothController mBluetoothController;
     
-    private Button btnScanAvaliabe, btnScan, btnOpen, btnStartServer;
+    private Button btnScanAvaliabe, btnScan, btnOpen, btnStartServer, btnBle;
     private TextView tvBTState;
     private ListView lvDevices;
 
@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
         btnScanAvaliabe = (Button) findViewById(R.id.btn_scan_avaliable);
         btnScan = (Button) findViewById(R.id.btn_scan);
         btnOpen = (Button) findViewById(R.id.btn_open_bt);
+        btnBle = (Button) findViewById(R.id.btn_ble);
         btnStartServer = (Button) findViewById(R.id.btn_start_as_server);
         tvBTState = (TextView) findViewById(R.id.tv_bt_state);
         lvDevices = (ListView) findViewById(R.id.lv_devices);
@@ -151,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
                 mBluetoothController.startAsServer();
                 Toast.makeText(MainActivity.this, "Start as a server!",
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+        btnBle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, BleActivity.class));
             }
         });
         lvDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {

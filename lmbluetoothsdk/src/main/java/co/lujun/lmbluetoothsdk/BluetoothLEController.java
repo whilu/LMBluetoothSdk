@@ -212,7 +212,9 @@ public class BluetoothLEController implements BaseController {
             // 搜索指定UUID的外设, startLeScan(UUID[], BluetoothAdapter.LeScanCallback)
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         }else {
-            mCbtScanCallback = new CBTScanCallback();
+            if (mCbtScanCallback == null){
+                mCbtScanCallback = new CBTScanCallback();
+            }
             mLEScanner.startScan(mLeFilters, mLeSettings, mCbtScanCallback);
         }
     }
@@ -273,7 +275,9 @@ public class BluetoothLEController implements BaseController {
 
     @Override
     public void write(byte[] data) {
-
+        if (mBluetoothLEService != null) {
+            mBluetoothLEService.write(data);
+        }
     }
 
     /**
@@ -310,7 +314,7 @@ public class BluetoothLEController implements BaseController {
 
     };
 
-    private CBTScanCallback mCbtScanCallback = new CBTScanCallback();
+    private CBTScanCallback mCbtScanCallback;
 
     private class CBTScanCallback extends ScanCallback {
 
