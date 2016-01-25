@@ -26,18 +26,29 @@
 
 package co.lujun.lmbluetoothsdk.base;
 
-import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
 
 /**
  * Author: lujun(http://blog.lujun.co)
  * Date: 2016-1-15 10:53
  */
-public interface BluetoothListener extends BaseListener {
+public interface BluetoothLEListener extends BaseListener {
 
     /**
-     * Callback when remote device send data to current device.
-     * @param device, the connected device
-     * @param data, the bytes to read
+     * Read data.
+     * @param characteristic
      */
-    void onReadData(BluetoothDevice device, byte[] data);
+    void onReadData(BluetoothGattCharacteristic characteristic);
+
+    /**
+     * When write data to remote BLE device, the notification will send to here.
+     * @param characteristic
+     */
+    void onWriteData(BluetoothGattCharacteristic characteristic);
+
+    /**
+     * When data changed, the notification will send to here.
+     * @param characteristic
+     */
+    void onDataChanged(BluetoothGattCharacteristic characteristic);
 }

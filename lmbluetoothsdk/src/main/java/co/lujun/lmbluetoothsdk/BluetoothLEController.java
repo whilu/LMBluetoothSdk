@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 
 import co.lujun.lmbluetoothsdk.base.BaseController;
+import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
 import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
 import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
@@ -59,7 +60,7 @@ public class BluetoothLEController implements BaseController {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mLEScanner;
-    private BluetoothListener mBluetoothListener;
+    private BluetoothLEListener mBluetoothLEListener;
     private BlueToothReceiver mReceiver;
     private BluetoothLEService mBluetoothLEService;
     private ScanSettings mLeSettings;
@@ -106,11 +107,11 @@ public class BluetoothLEController implements BaseController {
      * Set bluetooth listener, you can check all bluetooth status and read data with this listener's callback.
      * @param listener a BluetoothListener
      */
-    public void setBluetoothListener(BluetoothListener listener){
-        this.mBluetoothListener = listener;
+    public void setBluetoothListener(BluetoothLEListener listener){
+        this.mBluetoothLEListener = listener;
         registerReceiver();
         if (mBluetoothLEService != null) {
-//            mBluetoothLEService.setBluetoothListener(mBluetoothListener);
+            mBluetoothLEService.setBluetoothLEListener(mBluetoothLEListener);
         }
     }
 
@@ -118,7 +119,7 @@ public class BluetoothLEController implements BaseController {
      * Register broadcast receiver for current context.
      */
     private void registerReceiver(){
-        if (mBluetoothListener == null || mContext == null){
+        if (mBluetoothLEListener == null || mContext == null){
             return;
         }
 
@@ -129,7 +130,7 @@ public class BluetoothLEController implements BaseController {
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
 
-        mReceiver = new BlueToothReceiver(mBluetoothListener);
+        mReceiver = new BlueToothReceiver(mBluetoothLEListener);
         mContext.registerReceiver(mReceiver, filter);
     }
 
@@ -251,17 +252,23 @@ public class BluetoothLEController implements BaseController {
 
     @Override
     public void connect(String mac) {
-
+        if (mBluetoothLEService != null) {
+            mBluetoothLEService.connect(mContext, mBluetoothAdapter.getRemoteDevice(mac));
+        }
     }
 
     @Override
     public void reConnect(String mac) {
-
+        if (mBluetoothLEService != null) {
+            mBluetoothLEService.reConnect();
+        }
     }
 
     @Override
     public void disconnect() {
-
+        if (mBluetoothLEService != null) {
+            mBluetoothLEService.disConnect();
+        }
     }
 
     @Override
@@ -296,8 +303,8 @@ public class BluetoothLEController implements BaseController {
             new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            if (mBluetoothListener != null) {
-                mBluetoothListener.onActionDeviceFound(device);
+            if (mBluetoothLEListener != null) {
+                mBluetoothLEListener.onActionDeviceFound(device);
             }
         }
 
@@ -310,8 +317,8 @@ public class BluetoothLEController implements BaseController {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            if (mBluetoothListener != null) {
-                mBluetoothListener.onActionDeviceFound(result.getDevice());
+            if (mBluetoothLEListener != null) {
+                mBluetoothLEListener.onActionDeviceFound(result.getDevice());
             }
         }
 

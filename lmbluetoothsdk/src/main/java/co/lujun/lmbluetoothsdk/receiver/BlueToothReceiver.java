@@ -32,7 +32,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import co.lujun.lmbluetoothsdk.base.BluetoothListener;
+import co.lujun.lmbluetoothsdk.base.BaseListener;
 
 /**
  * Author: lujun(http://blog.lujun.co)
@@ -40,9 +40,9 @@ import co.lujun.lmbluetoothsdk.base.BluetoothListener;
  */
 public class BlueToothReceiver extends BroadcastReceiver {
 
-    private BluetoothListener mBluetoothListener;
+    private BaseListener mBluetoothListener;
 
-    public BlueToothReceiver(BluetoothListener listener){
+    public BlueToothReceiver(BaseListener listener){
         mBluetoothListener = listener;
     }
 
