@@ -1,9 +1,7 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 LinkMob.cc
-
- * Contributors: lujun
+ * Copyright (c) 2015 lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,28 +28,22 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 
 import java.util.Set;
 import java.util.UUID;
 
-import co.lujun.lmbluetoothsdk.base.BaseController;
+import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
 import co.lujun.lmbluetoothsdk.base.State;
-import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
 import co.lujun.lmbluetoothsdk.service.BluetoothService;
 
 /**
  * Author: lujun(http://blog.lujun.co)
  * Date: 2016-1-14 10:59
  */
-public class BluetoothController implements BaseController {
+public class BluetoothController extends Bluetooth {
 
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothListener mBluetoothListener;
     private BluetoothService mBluetoothService;
-    private BlueToothReceiver mReceiver;
-    private Context mContext;
 
     private static BluetoothController sBluetoothController;
 
@@ -94,54 +86,6 @@ public class BluetoothController implements BaseController {
         }
     }
 
-    /**
-     * Register broadcast receiver for current context.
-     */
-    private void registerReceiver(){
-        if (mBluetoothListener == null || mContext == null){
-            return;
-        }
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-
-        mReceiver = new BlueToothReceiver(mBluetoothListener);
-        mContext.registerReceiver(mReceiver, filter);
-    }
-
-    @Override
-    public boolean isAvailable(){
-        return mBluetoothAdapter != null;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        if (isAvailable()){
-            return mBluetoothAdapter.isEnabled();
-        }
-        return false;
-    }
-
-    @Override
-    public boolean openBluetooth(){
-        if (!isAvailable()){
-            return false;
-        }
-        return mBluetoothAdapter.enable();
-    }
-
-    @Override
-    public void closeBluetooth(){
-        if (!isAvailable() && !isEnabled()){
-            return;
-        }
-        mBluetoothAdapter.disable();
-    }
-
     @Override
     public boolean setDiscoverable(int time){
         if (!isAvailable() && !isEnabled()){
@@ -151,14 +95,6 @@ public class BluetoothController implements BaseController {
         intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, time);
         mContext.startActivity(intent);
         return true;
-    }
-
-    @Override
-    public int getBluetoothState() {
-        if (!isAvailable()){
-            return BluetoothAdapter.STATE_OFF;
-        }
-        return mBluetoothAdapter.getState();
     }
 
     @Override
@@ -179,18 +115,12 @@ public class BluetoothController implements BaseController {
 
     @Override
     public Set<BluetoothDevice> getBondedDevices(){
-        if (!isAvailable() || !isEnabled()){
-            throw new RuntimeException("Bluetooth is not avaliable!");
-        }
-        return mBluetoothAdapter.getBondedDevices();
+        return super.getBondedDevices();
     }
 
     @Override
     public BluetoothDevice findDeviceByMac(String mac){
-        if (!isAvailable() || !isEnabled()){
-            throw new RuntimeException("Bluetooth is not avaliable!");
-        }
-        return mBluetoothAdapter.getRemoteDevice(mac);
+        return super.findDeviceByMac(mac);
     }
 
     @Override

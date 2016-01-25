@@ -1,9 +1,7 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 LinkMob.cc
-
- * Contributors: lujun
+ * Copyright (c) 2015 lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +33,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 public interface BluetoothLEListener extends BaseListener {
 
     /**
-     * Read data.
+     * Read data from BLE device.
      * @param characteristic
      */
     void onReadData(BluetoothGattCharacteristic characteristic);

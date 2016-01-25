@@ -1,9 +1,7 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 LinkMob.cc
-
- * Contributors: lujun
+ * Copyright (c) 2015 lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +34,6 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
@@ -45,10 +42,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import co.lujun.lmbluetoothsdk.base.BaseController;
+import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
-import co.lujun.lmbluetoothsdk.base.BluetoothListener;
-import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
 import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
 
 /**
@@ -56,20 +51,15 @@ import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
  * Date: 2016-1-21 15:18
  */
 @TargetApi(21)
-public class BluetoothLEController implements BaseController {
+public class BluetoothLEController extends Bluetooth {
 
-    private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mLEScanner;
-    private BluetoothLEListener mBluetoothLEListener;
-    private BlueToothReceiver mReceiver;
     private BluetoothLEService mBluetoothLEService;
     private ScanSettings mLeSettings;
     private List<ScanFilter> mLeFilters;
-
-    private Context mContext;
     private Handler mHandler;
 
-    private int mScanTime = 120000;
+    private int mScanTime = 120000; // default scan time 120s
 
     private static BluetoothLEController sBluetoothLEController;
 
@@ -108,59 +98,11 @@ public class BluetoothLEController implements BaseController {
      * @param listener a BluetoothListener
      */
     public void setBluetoothListener(BluetoothLEListener listener){
-        this.mBluetoothLEListener = listener;
+        this.mBluetoothListener = listener;
         registerReceiver();
         if (mBluetoothLEService != null) {
-            mBluetoothLEService.setBluetoothLEListener(mBluetoothLEListener);
+            mBluetoothLEService.setBluetoothLEListener(mBluetoothListener);
         }
-    }
-
-    /**
-     * Register broadcast receiver for current context.
-     */
-    private void registerReceiver(){
-        if (mBluetoothLEListener == null || mContext == null){
-            return;
-        }
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-
-        mReceiver = new BlueToothReceiver(mBluetoothLEListener);
-        mContext.registerReceiver(mReceiver, filter);
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return mBluetoothAdapter != null;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        if (isAvailable()){
-            return mBluetoothAdapter.isEnabled();
-        }
-        return false;
-    }
-
-    @Override
-    public boolean openBluetooth() {
-        if (!isAvailable()){
-            return false;
-        }
-        return mBluetoothAdapter.enable();
-    }
-
-    @Override
-    public void closeBluetooth() {
-        if (!isAvailable() && !isEnabled()){
-            return;
-        }
-        mBluetoothAdapter.disable();
     }
 
     /**
@@ -169,20 +111,6 @@ public class BluetoothLEController implements BaseController {
      */
     public boolean isSupportBLE(){
         return mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-    }
-
-    // Set Android device as a server is not support, you shouldn't call this method in BLE.
-    @Override
-    public boolean setDiscoverable(int time) {
-        return false;
-    }
-
-    @Override
-    public int getBluetoothState() {
-        if (!isAvailable()){
-            return BluetoothAdapter.STATE_OFF;
-        }
-        return mBluetoothAdapter.getState();
     }
 
     @Override
@@ -209,7 +137,6 @@ public class BluetoothLEController implements BaseController {
             }
         }, mScanTime);
         if (Build.VERSION.SDK_INT < 21) {
-            // 搜索指定UUID的外设, startLeScan(UUID[], BluetoothAdapter.LeScanCallback)
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         }else {
             if (mCbtScanCallback == null){
@@ -234,23 +161,13 @@ public class BluetoothLEController implements BaseController {
 
     @Override
     public Set<BluetoothDevice> getBondedDevices() {
-        if (!isAvailable() || !isEnabled()){
-            throw new RuntimeException("Bluetooth is not avaliable!");
-        }
-        return mBluetoothAdapter.getBondedDevices();
+        return super.getBondedDevices();
     }
 
     @Override
     public BluetoothDevice findDeviceByMac(String mac) {
-        if (!isAvailable() || !isEnabled()){
-            throw new RuntimeException("Bluetooth is not avaliable!");
-        }
-        return mBluetoothAdapter.getRemoteDevice(mac);
+        return super.findDeviceByMac(mac);
     }
-
-    // Set Android device as a server is not support.
-    @Override
-    public void startAsServer() {}
 
     @Override
     public void connect(String mac) {
@@ -301,14 +218,12 @@ public class BluetoothLEController implements BaseController {
         return null;
     }
 
-
-
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            if (mBluetoothLEListener != null) {
-                mBluetoothLEListener.onActionDeviceFound(device);
+            if (mBluetoothListener != null) {
+                mBluetoothListener.onActionDeviceFound(device);
             }
         }
 
@@ -321,8 +236,8 @@ public class BluetoothLEController implements BaseController {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            if (mBluetoothLEListener != null) {
-                mBluetoothLEListener.onActionDeviceFound(result.getDevice());
+            if (mBluetoothListener != null) {
+                mBluetoothListener.onActionDeviceFound(result.getDevice());
             }
         }
 

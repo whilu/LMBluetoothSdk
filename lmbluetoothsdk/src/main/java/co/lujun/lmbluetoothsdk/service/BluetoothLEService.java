@@ -1,3 +1,27 @@
+/*
+ * The MIT License (MIT)
+
+ * Copyright (c) 2015 lujun
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package co.lujun.lmbluetoothsdk.service;
 
 import android.annotation.TargetApi;
@@ -8,10 +32,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.util.Log;
 
 import java.util.List;
 
+import co.lujun.lmbluetoothsdk.base.BaseListener;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
 import co.lujun.lmbluetoothsdk.base.State;
 
@@ -22,7 +46,7 @@ import co.lujun.lmbluetoothsdk.base.State;
 @TargetApi(21)
 public class BluetoothLEService {
 
-    private BluetoothLEListener mBluetoothLEListener;
+    private BaseListener mBluetoothListener;
     private BluetoothGatt mBluetoothGatt;
     private BluetoothGattCharacteristic mWriteCharacteristic, mNotifyCharacteristic;
 
@@ -38,8 +62,8 @@ public class BluetoothLEService {
      * Set bluetoothLE listener.
      * @param listener BluetoothLEListener
      */
-    public synchronized void setBluetoothLEListener(BluetoothLEListener listener) {
-        this.mBluetoothLEListener = listener;
+        public synchronized void setBluetoothLEListener(BaseListener listener) {
+        this.mBluetoothListener = listener;
     }
 
     /**
@@ -48,8 +72,8 @@ public class BluetoothLEService {
      */
     private synchronized void setState(int state) {
         mState = state;
-        if (mBluetoothLEListener != null){
-            mBluetoothLEListener.onBluetoothServiceStateChanged(state);
+        if (mBluetoothListener != null){
+            mBluetoothListener.onBluetoothServiceStateChanged(state);
         }
     }
 
@@ -163,24 +187,24 @@ public class BluetoothLEService {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
-            if (mBluetoothLEListener != null){
-                mBluetoothLEListener.onReadData(characteristic);
+            if (mBluetoothListener != null){
+                ((BluetoothLEListener)mBluetoothListener).onReadData(characteristic);
             }
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            if (mBluetoothLEListener != null){
-                mBluetoothLEListener.onWriteData(characteristic);
+            if (mBluetoothListener != null){
+                ((BluetoothLEListener)mBluetoothListener).onWriteData(characteristic);
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            if (mBluetoothLEListener != null){
-                mBluetoothLEListener.onDataChanged(characteristic);
+            if (mBluetoothListener != null){
+                ((BluetoothLEListener)mBluetoothListener).onDataChanged(characteristic);
             }
         }
     };

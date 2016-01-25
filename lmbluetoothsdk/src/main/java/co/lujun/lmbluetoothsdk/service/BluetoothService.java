@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import co.lujun.lmbluetoothsdk.base.BaseListener;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
 import co.lujun.lmbluetoothsdk.base.State;
 
@@ -41,7 +42,7 @@ public class BluetoothService {
     private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
-    private BluetoothListener mBluetoothListener;
+    private BaseListener mBluetoothListener;
     private BluetoothDevice mBluetoothDevice;
 
     private int mState;
@@ -57,9 +58,9 @@ public class BluetoothService {
 
     /**
      * Set bluetooth listener.
-     * @param listener BluetoothListener
+     * @param listener BaseListener
      */
-    public synchronized void setBluetoothListener(BluetoothListener listener) {
+    public synchronized void setBluetoothListener(BaseListener listener) {
         this.mBluetoothListener = listener;
     }
 
@@ -356,7 +357,7 @@ public class BluetoothService {
                 try {
                     bytes = mmInStream.read(buffer);
                     if (mBluetoothListener != null){
-                        mBluetoothListener.onReadData(mmSocket.getRemoteDevice(), buffer);
+                        ((BluetoothListener)mBluetoothListener).onReadData(mmSocket.getRemoteDevice(), buffer);
                     }
                 } catch (IOException e) {
                     setState(co.lujun.lmbluetoothsdk.base.State.STATE_DISCONNECTED);
