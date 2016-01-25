@@ -30,9 +30,19 @@ import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Handler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import co.lujun.lmbluetoothsdk.base.BaseController;
@@ -48,10 +58,17 @@ import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
 public class BluetoothLEController implements BaseController {
 
     private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothLeScanner mLEScanner;
     private BluetoothListener mBluetoothListener;
     private BlueToothReceiver mReceiver;
     private BluetoothLEService mBluetoothLEService;
+    private ScanSettings mLeSettings;
+    private List<ScanFilter> mLeFilters;
+
     private Context mContext;
+    private Handler mHandler;
+
+    private int mScanTime = 120000;
 
     private static BluetoothLEController sBluetoothLEController;
 
@@ -77,6 +94,7 @@ public class BluetoothLEController implements BaseController {
      */
     public BluetoothLEController build(Context context){
         mContext = context;
+        mHandler = new Handler();
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -144,6 +162,15 @@ public class BluetoothLEController implements BaseController {
         mBluetoothAdapter.disable();
     }
 
+    /**
+     *  Check to determine whether BLE is supported on the device
+     * @return
+     */
+    public boolean isSupportBLE(){
+        return mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+    }
+
+    // Set Android device as a server is not support, you shouldn't call this method in BLE.
     @Override
     public boolean setDiscoverable(int time) {
         return false;
@@ -151,33 +178,76 @@ public class BluetoothLEController implements BaseController {
 
     @Override
     public int getBluetoothState() {
-        return 0;
+        if (!isAvailable()){
+            return BluetoothAdapter.STATE_OFF;
+        }
+        return mBluetoothAdapter.getState();
     }
 
     @Override
     public boolean startScan() {
-        return false;
+        if (!isAvailable() && !isEnabled()){
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= 21){
+            mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
+            mLeSettings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            mLeFilters = new ArrayList<ScanFilter>();
+        }
+        scanLeDevice();
+        return true;
+    }
+
+    private void scanLeDevice(){
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                cancelScan();
+            }
+        }, mScanTime);
+        if (Build.VERSION.SDK_INT < 21) {
+            // 搜索指定UUID的外设, startLeScan(UUID[], BluetoothAdapter.LeScanCallback)
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+        }else {
+            mCbtScanCallback = new CBTScanCallback();
+            mLEScanner.startScan(mLeFilters, mLeSettings, mCbtScanCallback);
+        }
     }
 
     @Override
     public boolean cancelScan() {
-        return false;
+        if (!isAvailable() && !isEnabled()){
+            return false;
+        }
+        if (Build.VERSION.SDK_INT < 21) {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        }else {
+            mLEScanner.stopScan(mCbtScanCallback);
+        }
+        return true;
     }
 
     @Override
     public Set<BluetoothDevice> getBondedDevices() {
-        return null;
+        if (!isAvailable() || !isEnabled()){
+            throw new RuntimeException("Bluetooth is not avaliable!");
+        }
+        return mBluetoothAdapter.getBondedDevices();
     }
 
     @Override
     public BluetoothDevice findDeviceByMac(String mac) {
-        return null;
+        if (!isAvailable() || !isEnabled()){
+            throw new RuntimeException("Bluetooth is not avaliable!");
+        }
+        return mBluetoothAdapter.getRemoteDevice(mac);
     }
 
+    // Set Android device as a server is not support.
     @Override
-    public void startAsServer() {
-
-    }
+    public void startAsServer() {}
 
     @Override
     public void connect(String mac) {
@@ -199,8 +269,60 @@ public class BluetoothLEController implements BaseController {
 
     }
 
+    /**
+     * Set scan time(unit millisecond)
+     * @param time
+     */
+    public void setScanTime(int time){
+        mScanTime = time;
+    }
+
+    /**
+     * Get scan time.
+     * @return
+     */
+    public int getScanTime() {
+        return mScanTime;
+    }
+
     @Override
     public BluetoothDevice getConnectedDevice() {
         return null;
+    }
+
+
+
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+            if (mBluetoothListener != null) {
+                mBluetoothListener.onActionDeviceFound(device);
+            }
+        }
+
+    };
+
+    private CBTScanCallback mCbtScanCallback = new CBTScanCallback();
+
+    private class CBTScanCallback extends ScanCallback {
+
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            if (mBluetoothListener != null) {
+                mBluetoothListener.onActionDeviceFound(result.getDevice());
+            }
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+        }
     }
 }

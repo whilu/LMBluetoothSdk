@@ -18,43 +18,57 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="90dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_open_bt"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:text="开启蓝牙" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_scan_avaliable"
+            <Button
+                android:id="@+id/btn_open_bt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="Open Bluetooth" />
+
+            <Button
+                android:id="@+id/btn_scan_avaliable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="Set Discoverable" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:text="可被检测" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_scan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:text="扫描" />
+            <Button
+                android:id="@+id/btn_scan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="Scan Device" />
 
-        <Button
-            android:id="@+id/btn_start_as_server"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:text="打开服务端" />
+            <Button
+                android:id="@+id/btn_start_as_server"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="Start As Server" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <TextView
@@ -63,7 +77,7 @@
         android:layout_height="30dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="150dp"
+        android:layout_marginBottom="210dp"
         android:layout_weight="1"
         android:background="#33ff0000"
         android:gravity="center"
