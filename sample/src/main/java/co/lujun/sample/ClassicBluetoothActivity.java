@@ -82,6 +82,7 @@ public class ClassicBluetoothActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classicbt);
+        getSupportActionBar().setTitle("Classic Bluetooth Sample");
         init();
     }
 

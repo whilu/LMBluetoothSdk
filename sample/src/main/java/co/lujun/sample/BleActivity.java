@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,12 +116,12 @@ public class BleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ble);
+        getSupportActionBar().setTitle("BLE Sample");
         init();
     }
 
     private void init(){
         mBLEController = BluetoothLEController.getInstance().build(this);
-        Log.d(TAG, "build");
         mBLEController.setBluetoothListener(mBluetoothLEListener);
 
         mList = new ArrayList<String>();
@@ -142,7 +143,9 @@ public class BleActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mList.clear();
                 mFoundAdapter.notifyDataSetChanged();
-                mBLEController.startScan();
+                if (mBLEController.startScan()){
+                    Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         btnDisconnect.setOnClickListener(new View.OnClickListener() {
@@ -161,7 +164,7 @@ public class BleActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String msg = etSendContent.getText().toString();
-                if (!TextUtils.isEmpty(msg)){
+                if (!TextUtils.isEmpty(msg)) {
                     mBLEController.write(msg.getBytes());
                 }
             }
@@ -173,13 +176,17 @@ public class BleActivity extends AppCompatActivity {
                 mBLEController.connect(itemStr.substring(itemStr.length() - 17));
             }
         });
+
+        if (!mBLEController.isSupportBLE()){
+            Toast.makeText(BleActivity.this, "Unsupport BLE!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mBLEController.release();
-        Log.d(TAG, "release");
     }
 
     private String parseData(BluetoothGattCharacteristic characteristic){

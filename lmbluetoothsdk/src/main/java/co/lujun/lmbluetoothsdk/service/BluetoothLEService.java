@@ -52,8 +52,6 @@ public class BluetoothLEService {
 
     private int mState;
 
-    private static final String TAG = "LMBluetoothSdk";
-
     public BluetoothLEService(){
         mState = State.STATE_NONE;
     }
@@ -94,8 +92,6 @@ public class BluetoothLEService {
      */
     public void connect(Context context, BluetoothDevice device){
         setState(State.STATE_CONNECTING);
-        // mBluetoothGatt is a BluetoothGatt instance,
-        // which you can then use to conduct GATT client operations
         mBluetoothGatt = device.connectGatt(context, false, mBTGattCallback);
     }
 
@@ -167,8 +163,6 @@ public class BluetoothLEService {
                     for (BluetoothGattCharacteristic characteristic : characteristics) {
                         final int charaProp = characteristic.getProperties();
                         if ((charaProp | BluetoothGattCharacteristic.PERMISSION_READ) > 0){
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
                             if (mNotifyCharacteristic != null){
                                 mBluetoothGatt.setCharacteristicNotification(mNotifyCharacteristic, false);
                                 mNotifyCharacteristic = null;

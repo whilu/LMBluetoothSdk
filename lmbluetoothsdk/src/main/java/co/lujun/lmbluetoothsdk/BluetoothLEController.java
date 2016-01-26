@@ -61,7 +61,10 @@ public class BluetoothLEController extends Bluetooth {
     private List<ScanFilter> mLeFilters;
     private Handler mHandler;
 
-    private int mScanTime = 120000; // default scan time 120s
+    /**
+     * Default scan time 120s
+     */
+    private int mScanTime = 120000;
 
     private static BluetoothLEController sBluetoothLEController;
 
