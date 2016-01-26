@@ -67,7 +67,7 @@ public abstract class Bluetooth {
      * Is current device's bluetooth available.
      * @return true if current device's bluetooth is available
      */
-    protected boolean isAvailable(){
+    public boolean isAvailable(){
         return mBluetoothAdapter != null;
     }
 
@@ -76,7 +76,7 @@ public abstract class Bluetooth {
      * @return true id current device's bluetooth is enabled,
      * you should first check whether the bluetooth is available use {@link #isAvailable}
      */
-    protected boolean isEnabled() {
+    public boolean isEnabled() {
         if (isAvailable()){
             return mBluetoothAdapter.isEnabled();
         }
@@ -87,7 +87,7 @@ public abstract class Bluetooth {
      * Open device's bluetooth.
      * @return true if open bluetooth operation success
      */
-    protected boolean openBluetooth(){
+    public boolean openBluetooth(){
         if (!isAvailable()){
             return false;
         }
@@ -97,7 +97,7 @@ public abstract class Bluetooth {
     /**
      * Close device's bluetooth.
      */
-    protected void closeBluetooth(){
+    public void closeBluetooth(){
         if (!isAvailable() && !isEnabled()){
             return;
         }
@@ -111,7 +111,7 @@ public abstract class Bluetooth {
      * in {@link android.bluetooth.BluetoothAdapter} class.
      * Requires android.Manifest.permission.BLUETOOTH permission.
      */
-    protected int getBluetoothState() {
+    public int getBluetoothState() {
         if (!isAvailable()){
             return BluetoothAdapter.STATE_OFF;
         }
@@ -124,7 +124,7 @@ public abstract class Bluetooth {
      * @param time the time(unit seconds) of the device's bluetooth can be found
      * @return true if set discoverable operation success
      */
-    protected boolean setDiscoverable(int time){
+    public boolean setDiscoverable(int time){
         return false;
     }
 
@@ -132,7 +132,7 @@ public abstract class Bluetooth {
      * Start scan for found bluetooth device.
      * @return if start scan operation success, return true
      */
-    protected boolean startScan(){
+    public boolean startScan(){
         return false;
     }
 
@@ -140,7 +140,7 @@ public abstract class Bluetooth {
      * Cancel device's bluetooth scan operation.
      * @return if cancel scan operation success, return true
      */
-    protected boolean cancelScan(){
+    public boolean cancelScan(){
         return false;
     }
 
@@ -148,7 +148,7 @@ public abstract class Bluetooth {
      * Get paired devices.
      * @return the paired devices set
      */
-    protected Set<BluetoothDevice> getBondedDevices(){
+    public Set<BluetoothDevice> getBondedDevices(){
         if (!isAvailable() || !isEnabled()){
             throw new RuntimeException("Bluetooth is not avaliable!");
         }
@@ -160,7 +160,7 @@ public abstract class Bluetooth {
      * @param mac the bluetooth MAC address
      * @return a remote bluetooth device
      */
-    protected BluetoothDevice findDeviceByMac(String mac){
+    public BluetoothDevice findDeviceByMac(String mac){
         if (!isAvailable() || !isEnabled()){
             throw new RuntimeException("Bluetooth is not avaliable!");
         }
@@ -170,36 +170,45 @@ public abstract class Bluetooth {
     /**
      * Start as a server, that will listen to client connect.
      */
-    protected void startAsServer(){}
+    public void startAsServer(){}
 
     /**
      * Connected a bluetooth device by MAC address.
      * @param mac the bluetooth MAC address
      */
-    protected void connect(String mac){}
+    public void connect(String mac){}
 
     /**
      * Reconnect a bluetooth device by MAC address when the connection is lost.
      * @param mac the bluetooth MAC address, like the {@link #connect} method parameter
      */
-    protected void reConnect(String mac){}
+    public void reConnect(String mac){}
 
     /**
      * Disconnect connection.
      */
-    protected void disconnect(){}
+    public void disconnect(){}
 
     /**
      * Write data to remote device.
      * @param data the byte array represent the data
      */
-    protected void write(byte[] data){}
+    public void write(byte[] data){}
 
     /**
      * Get the connected remote device if connection is available, else return null
      * @return a connected remote device
      */
-    protected BluetoothDevice getConnectedDevice(){
+    public BluetoothDevice getConnectedDevice(){
         return null;
+    }
+
+    /**
+     * Release the instance resources, include BluetoothLEController and BluetoothController.
+     * if you want to use again, use the instance's 'build(Context)' method to build again.
+     */
+    public void release(){
+        mBluetoothAdapter = null;
+        mContext.unregisterReceiver(mReceiver);
     }
 }

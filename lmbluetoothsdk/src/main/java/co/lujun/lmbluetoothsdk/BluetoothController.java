@@ -164,14 +164,10 @@ public class BluetoothController extends Bluetooth {
         }
     }
 
-    /**
-     * Release the instance resources.
-     * if you want to use again, use {@link #build(Context)} to build again.
-     */
+    @Override
     public void release(){
-        mContext.unregisterReceiver(mReceiver);
         mBluetoothService = null;
-        mBluetoothAdapter = null;
+        super.release();
     }
 
     /**

@@ -44,6 +44,7 @@ import java.util.Set;
 
 import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
+import co.lujun.lmbluetoothsdk.base.State;
 import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
 
 /**
@@ -55,6 +56,7 @@ public class BluetoothLEController extends Bluetooth {
 
     private BluetoothLeScanner mLEScanner;
     private BluetoothLEService mBluetoothLEService;
+    private BluetoothDevice mConnectDevice;
     private ScanSettings mLeSettings;
     private List<ScanFilter> mLeFilters;
     private Handler mHandler;
@@ -172,12 +174,15 @@ public class BluetoothLEController extends Bluetooth {
     @Override
     public void connect(String mac) {
         if (mBluetoothLEService != null) {
-            mBluetoothLEService.connect(mContext, mBluetoothAdapter.getRemoteDevice(mac));
+            mConnectDevice = mBluetoothAdapter.getRemoteDevice(mac);
+            mBluetoothLEService.connect(mContext, mConnectDevice);
         }
     }
 
-    @Override
-    public void reConnect(String mac) {
+    /**
+     * Reconnect a bluetooth device when the connection is lost.
+     */
+    public void reConnect() {
         if (mBluetoothLEService != null) {
             mBluetoothLEService.reConnect();
         }
@@ -188,6 +193,26 @@ public class BluetoothLEController extends Bluetooth {
         if (mBluetoothLEService != null) {
             mBluetoothLEService.disConnect();
         }
+    }
+
+    @Override
+    public void release(){
+        mBluetoothLEService.close();
+        mBluetoothLEService = null;
+        super.release();
+    }
+
+    /**
+     * Get connection state.
+     * Possible return values are STATE_NONE, STATE_LISTEN, STATE_CONNECTING, STATE_CONNECTED,
+     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link State} class.
+     * @return the connection state
+     */
+    public int getConnectionState(){
+        if (mBluetoothLEService != null){
+            return mBluetoothLEService.getState();
+        }
+        return State.STATE_UNKNOWN;
     }
 
     @Override
@@ -215,7 +240,7 @@ public class BluetoothLEController extends Bluetooth {
 
     @Override
     public BluetoothDevice getConnectedDevice() {
-        return null;
+        return mConnectDevice;
     }
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback =

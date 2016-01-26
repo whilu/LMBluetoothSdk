@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ClassicBluetoothActivity" />
         <activity
             android:name=".ChatActivity"
             android:windowSoftInputMode="adjustPan" />

@@ -1,10 +1,8 @@
 package co.lujun.sample;
 
 import android.annotation.TargetApi;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.lujun.lmbluetoothsdk.BluetoothLEController;
-import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
 
 /**
@@ -38,7 +35,7 @@ public class BleActivity extends AppCompatActivity {
     private BaseAdapter mFoundAdapter;
 
     private ListView lvDevices;
-    private Button btnScan, btnDisconnect, btnSend;
+    private Button btnScan, btnDisconnect, btnReconnect, btnSend;
     private TextView tvConnState, tvContent;
     private EditText etSendContent;
 
@@ -50,7 +47,8 @@ public class BleActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvContent.append(parseData(characteristic) + "\n");
+                    tvContent.append("Read from " + mBLEController.getConnectedDevice().getName()
+                            + ": " + parseData(characteristic) + "\n");
                 }
             });
         }
@@ -60,7 +58,7 @@ public class BleActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvContent.append(parseData(characteristic) + "\n");
+                    tvContent.append("Me" + ": " + parseData(characteristic) + "\n");
                 }
             });
         }
@@ -70,24 +68,25 @@ public class BleActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvContent.append(parseData(characteristic) + "\n");
+                    tvContent.append("Changed from " + mBLEController.getConnectedDevice().getName()
+                            + ": " + parseData(characteristic) + "\n");
                 }
             });
         }
 
         @Override
         public void onActionStateChanged(int preState, int state) {
-            Log.d(TAG, "onActionStateChanged: bt state: " + state);
+            Log.d(TAG, "onActionStateChanged: " + state);
         }
 
         @Override
         public void onActionDiscoveryStateChanged(String discoveryState) {
-            Log.d(TAG, "onActionDiscoveryStateChanged: bt discovery process: " + discoveryState);
+            Log.d(TAG, "onActionDiscoveryStateChanged:  " + discoveryState);
         }
 
         @Override
         public void onActionScanModeChanged(int preScanMode, int scanMode) {
-            Log.d(TAG, "onActionScanModeChanged: scan mode: " + scanMode);
+            Log.d(TAG, "onActionScanModeChanged:  " + scanMode);
         }
 
         @Override
@@ -95,7 +94,7 @@ public class BleActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvConnState.setText("Conn state: " + state);
+                    tvConnState.setText("Conn state: " + Utils.transConnStateAsString(state));
                 }
             });
         }
@@ -115,12 +114,13 @@ public class BleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ble_main);
+        setContentView(R.layout.activity_ble);
         init();
     }
 
     private void init(){
         mBLEController = BluetoothLEController.getInstance().build(this);
+        Log.d(TAG, "build");
         mBLEController.setBluetoothListener(mBluetoothLEListener);
 
         mList = new ArrayList<String>();
@@ -129,6 +129,7 @@ public class BleActivity extends AppCompatActivity {
         lvDevices = (ListView) findViewById(R.id.lv_ble_devices);
         btnScan = (Button) findViewById(R.id.btn_ble_scan);
         btnDisconnect = (Button) findViewById(R.id.btn_ble_disconnect);
+        btnReconnect = (Button) findViewById(R.id.btn_ble_reconnect);
         btnSend = (Button) findViewById(R.id.btn_ble_send);
         tvConnState = (TextView) findViewById(R.id.tv_ble_conn_state);
         tvContent = (TextView) findViewById(R.id.tv_ble_chat_content);
@@ -150,12 +151,17 @@ public class BleActivity extends AppCompatActivity {
                 mBLEController.disconnect();
             }
         });
+        btnReconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBLEController.reConnect();
+            }
+        });
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String msg = etSendContent.getText().toString();
                 if (!TextUtils.isEmpty(msg)){
-                    tvContent.append(msg + "\n");
                     mBLEController.write(msg.getBytes());
                 }
             }
@@ -168,6 +174,14 @@ public class BleActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mBLEController.release();
+        Log.d(TAG, "release");
+    }
+
     private String parseData(BluetoothGattCharacteristic characteristic){
         String result = "";
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is

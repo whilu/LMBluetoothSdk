@@ -93,7 +93,9 @@ public class BluetoothLEService {
      * @param device
      */
     public void connect(Context context, BluetoothDevice device){
-        // mBluetoothGatt is a BluetoothGatt instance, which you can then use to conduct GATT client operations
+        setState(State.STATE_CONNECTING);
+        // mBluetoothGatt is a BluetoothGatt instance,
+        // which you can then use to conduct GATT client operations
         mBluetoothGatt = device.connectGatt(context, false, mBTGattCallback);
     }
 
@@ -120,7 +122,9 @@ public class BluetoothLEService {
      */
     public void close(){
         disConnect();
-        mBluetoothGatt.close();
+        if (mBluetoothGatt != null) {
+            mBluetoothGatt.close();
+        }
         mBluetoothGatt = null;
     }
 
