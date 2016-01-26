@@ -1,7 +1,9 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 lujun
+ * Copyright (c) 2015 LinkMob.cc
+
+ * Author: lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -210,5 +212,15 @@ public abstract class Bluetooth {
     public void release(){
         mBluetoothAdapter = null;
         mContext.unregisterReceiver(mReceiver);
+    }
+
+    /**
+     * Get connection state.
+     * Possible return values are STATE_NONE, STATE_LISTEN, STATE_CONNECTING, STATE_CONNECTED,
+     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link State} class.
+     * @return the connection state
+     */
+    public int getConnectionState(){
+        return State.STATE_UNKNOWN;
     }
 }

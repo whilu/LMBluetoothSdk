@@ -1,7 +1,9 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 lujun
+ * Copyright (c) 2015 LinkMob.cc
+
+ * Author: lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -111,7 +113,7 @@ public class BluetoothLEController extends Bluetooth {
     }
 
     /**
-     *  Check to determine whether BLE is supported on the device
+     *  Check to determine whether BLE is supported on the device.
      * @return
      */
     public boolean isSupportBLE(){
@@ -205,12 +207,7 @@ public class BluetoothLEController extends Bluetooth {
         super.release();
     }
 
-    /**
-     * Get connection state.
-     * Possible return values are STATE_NONE, STATE_LISTEN, STATE_CONNECTING, STATE_CONNECTED,
-     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link State} class.
-     * @return the connection state
-     */
+    @Override
     public int getConnectionState(){
         if (mBluetoothLEService != null){
             return mBluetoothLEService.getState();
@@ -227,7 +224,7 @@ public class BluetoothLEController extends Bluetooth {
 
     /**
      * Set scan time(unit millisecond)
-     * @param time
+     * @param time the scan time
      */
     public void setScanTime(int time){
         mScanTime = time;
