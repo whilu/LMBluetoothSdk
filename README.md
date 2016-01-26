@@ -16,7 +16,7 @@ Add below dependency in your **build.gradle** file.
 
 ```groovy
 dependencies {
-    // upload wait
+    // upload later
     // compile 'co.lujun:lmbluetoothsdk:1.0.0'
 }
 ```
