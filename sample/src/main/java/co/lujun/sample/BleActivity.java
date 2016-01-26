@@ -211,13 +211,6 @@ public class BleActivity extends AppCompatActivity {
         // For all other profiles, writes the data formatted in HEX.
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
-            final StringBuilder stringBuilder = new StringBuilder(data.length);
-            for(byte byteChar : data)
-                // 格式： 转化为16进制，最小两位一组，不足两位前面补0，大于等于两位不管
-                stringBuilder.append(String.format("%02X", byteChar));
-//                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-            // 原内容+ 16进制内容
-//                result =  new String(data) + "\n" + stringBuilder.toString();
             result =  new String(data);
         }
 //        }
