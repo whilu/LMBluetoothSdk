@@ -16,8 +16,7 @@ Add below dependency in your **build.gradle** file.
 
 ```groovy
 dependencies {
-    // upload later...
-    // compile 'co.lujun:lmbluetoothsdk:1.0.0'
+    compile 'co.lujun:lmbluetoothsdk:1.0.0'
 }
 ```
 
@@ -174,7 +173,8 @@ Manufacturing bluetooth connection status, there are 6 states in the class.
 | STATE_DISCONNECTED | 4 | lost the connection
 | STATE_UNKNOWN | 5 | unknown state
 
-## Change logs
+## Change logs(2016-1-26)
+- First release
 
 ## Sample App
 [APK](/sample/sample-release.apk)
