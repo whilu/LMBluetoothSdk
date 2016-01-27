@@ -25,8 +25,11 @@ dependencies {
 Build the controller in your app with current context(the sdk need this context to register a BroadcastReceiver to receive the bluetooth status), and you may get the singleton ```BluetoothController(BluetoothLEController)``` object, code like that:
 
 ```java
+// For classic bluetooth
 BluetoothController mBTController = BluetoothController.getInstance().build(Context context);
-BluetoothLEController mBLEController = BluetoothLEController.getInstance().build(Context context);
+
+// If you make code for BLE
+// BluetoothLEController mBLEController = BluetoothLEController.getInstance().build(Context context);
 ```
 
 ### Step 3
