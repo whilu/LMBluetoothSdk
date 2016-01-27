@@ -1,6 +1,6 @@
 # LMBluetoothSdk
 
-[![Build Status](https://travis-ci.org/whilu/LMBluetoothSdk.svg)](https://travis-ci.org/whilu/LMBluetoothSdk)
+[![Build Status](https://travis-ci.org/whilu/LMBluetoothSdk.svg)](https://travis-ci.org/whilu/LMBluetoothSdk) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-LMBluetoothSdk-green.svg?style=true)](https://android-arsenal.com/details/1/3071)
 
 A library to make classic bluetooth or BLE easier to use in Android.
 
@@ -124,7 +124,7 @@ mBLEController.setBluetoothListener(new BluetoothLEListener() {
 
 Now the initialization step has been completed, you can use the following functional methods to make you app.
 
-## Public methods for BluetoothListener/BluetoothLEListener
+## Public methods for BluetoothController/BluetoothLEController
 
 |method|param|return|description
 |:---:|:---:|:---:|:---:|
@@ -134,7 +134,7 @@ Now the initialization step has been completed, you can use the following functi
 | closeBluetooth() | | | close bluetooth
 | getBluetoothState() | | possible value are ```STATE_OFF```, ```STATE_TURNING_ON```, ```STATE_ON```, ```STATE_TURNING_OFF``` in ```android.bluetooth.BluetoothAdapter``` class | get current bluetooth state
 | startScan() | | true if start scan operation success | start scan for found bluetooth device
-| cancelScan() | | true if cancel scan operation success | cancel device's bluetooth scan operation
+| cancelScan() | | true if cancel scan operation success | cancel device's scan operation
 | getBondedDevices() | | the paired devices set | get paired devices
 | findDeviceByMac(String mac) | the bluetooth MAC address | remote bluetooth device | find a bluetooth device by MAC address
 | connect(String mac) | the bluetooth MAC address | | connected a bluetooth device by MAC address
@@ -144,7 +144,7 @@ Now the initialization step has been completed, you can use the following functi
 | getConnectedDevice() | | connected remote device | get the connected remote device
 | release() | | | release the instance resources, if you want to use again, use the instance's ```build(Context)``` method build again
 
-## Public methods for BluetoothListener
+## Public methods for BluetoothController
 
 |method|param|return|description
 |:---:|:---:|:---:|:---:|
@@ -154,7 +154,7 @@ Now the initialization step has been completed, you can use the following functi
 | getAppUuid() | | an UUID | get current SDP recorded UUID
 | setAppUuid(UUID uuid) | an UUID | | set an UUID for SDP record
 
-## Public methods for BluetoothLEListener
+## Public methods for BluetoothLEController
 
 |method|param|return|description
 |:---:|:---:|:---:|:---:|
@@ -190,8 +190,6 @@ If you have any questions, contact me: [lujun.byte#gmail.com](mailto:lujun.byte@
     The MIT License (MIT)
 
     Copyright (c) 2015 LinkMob.cc
-
-    Author: lujun
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
