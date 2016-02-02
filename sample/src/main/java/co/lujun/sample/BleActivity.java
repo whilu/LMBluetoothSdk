@@ -1,6 +1,7 @@
 package co.lujun.sample;
 
 import android.annotation.TargetApi;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
@@ -82,7 +83,11 @@ public class BleActivity extends AppCompatActivity {
 
         @Override
         public void onActionDiscoveryStateChanged(String discoveryState) {
-            Log.d(TAG, "onActionDiscoveryStateChanged:  " + discoveryState);
+            if (discoveryState.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
+                Toast.makeText(BleActivity.this, "scanning!", Toast.LENGTH_SHORT).show();
+            } else if (discoveryState.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
+                Toast.makeText(BleActivity.this, "scan finished!", Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override

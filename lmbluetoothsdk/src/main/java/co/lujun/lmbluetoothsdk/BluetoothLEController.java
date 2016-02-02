@@ -143,6 +143,9 @@ public class BluetoothLEController extends Bluetooth {
                 cancelScan();
             }
         }, mScanTime);
+        if (mBluetoothListener != null){
+            mBluetoothListener.onActionDiscoveryStateChanged(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        }
         if (Build.VERSION.SDK_INT < 21) {
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         }else {
@@ -162,6 +165,9 @@ public class BluetoothLEController extends Bluetooth {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }else {
             mLEScanner.stopScan(mCbtScanCallback);
+        }
+        if (mBluetoothListener != null){
+            mBluetoothListener.onActionDiscoveryStateChanged(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         }
         return true;
     }
