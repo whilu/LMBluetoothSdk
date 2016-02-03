@@ -181,6 +181,7 @@ public class BluetoothLEService {
                         }
                     }
                 }
+                setState(State.STATE_GOT_CHARACTERISTICS);
             }
         }
 
