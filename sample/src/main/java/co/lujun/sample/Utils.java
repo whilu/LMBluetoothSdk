@@ -22,7 +22,10 @@ public class Utils {
             result = "CONNECTED";
         } else if (state == State.STATE_DISCONNECTED){
             result = "DISCONNECTED";
-        }else {
+        }else if (state == State.STATE_GOT_CHARACTERISTICS){
+            result = "CONNECTED, GOT ALL CHARACTERISTICS";
+        }
+        else{
             result = "UNKNOWN";
         }
         return result;

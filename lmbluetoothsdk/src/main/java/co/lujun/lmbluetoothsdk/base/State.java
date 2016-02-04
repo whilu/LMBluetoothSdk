@@ -49,4 +49,7 @@ public class State {
 
     /** unknown state*/
     public static final int STATE_UNKNOWN = 5;
+
+    /** got all characteristics*/
+    public static final int STATE_GOT_CHARACTERISTICS = 6;
 }
