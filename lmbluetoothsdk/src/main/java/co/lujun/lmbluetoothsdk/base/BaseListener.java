@@ -73,5 +73,5 @@ public interface BaseListener {
      * Callback when found device.
      * @param device a remote device
      */
-    void onActionDeviceFound(BluetoothDevice device);
+    void onActionDeviceFound(BluetoothDevice device, short rssi);
 }

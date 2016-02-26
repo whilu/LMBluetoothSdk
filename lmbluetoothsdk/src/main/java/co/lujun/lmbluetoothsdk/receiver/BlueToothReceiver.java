@@ -69,7 +69,8 @@ public class BlueToothReceiver extends BroadcastReceiver {
 
             case BluetoothDevice.ACTION_FOUND:
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                mBluetoothListener.onActionDeviceFound(device);
+                short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, (short) 0);
+                mBluetoothListener.onActionDeviceFound(device, rssi);
                 break;
 
             case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:

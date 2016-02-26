@@ -17,7 +17,6 @@ android {
         }
     }
 }
-
 dependencies {
 }
 apply from: 'https://raw.githubusercontent.com/whilu/AndroidPublishLibrary/master/project/library/bintray_publish_sign.gradle'
