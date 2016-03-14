@@ -1,7 +1,9 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 lujun
+ * Copyright (c) 2015 LinkMob.cc
+
+ * Author: lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,8 +54,6 @@ public class BluetoothLEService {
 
     private int mState;
 
-    private static final String TAG = "LMBluetoothSdk";
-
     public BluetoothLEService(){
         mState = State.STATE_NONE;
     }
@@ -62,7 +62,7 @@ public class BluetoothLEService {
      * Set bluetoothLE listener.
      * @param listener BluetoothLEListener
      */
-        public synchronized void setBluetoothLEListener(BaseListener listener) {
+    public synchronized void setBluetoothLEListener(BaseListener listener) {
         this.mBluetoothListener = listener;
     }
 
@@ -93,7 +93,7 @@ public class BluetoothLEService {
      * @param device
      */
     public void connect(Context context, BluetoothDevice device){
-        // mBluetoothGatt is a BluetoothGatt instance, which you can then use to conduct GATT client operations
+        setState(State.STATE_CONNECTING);
         mBluetoothGatt = device.connectGatt(context, false, mBTGattCallback);
     }
 
@@ -120,7 +120,9 @@ public class BluetoothLEService {
      */
     public void close(){
         disConnect();
-        mBluetoothGatt.close();
+        if (mBluetoothGatt != null) {
+            mBluetoothGatt.close();
+        }
         mBluetoothGatt = null;
     }
 
@@ -163,8 +165,6 @@ public class BluetoothLEService {
                     for (BluetoothGattCharacteristic characteristic : characteristics) {
                         final int charaProp = characteristic.getProperties();
                         if ((charaProp | BluetoothGattCharacteristic.PERMISSION_READ) > 0){
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
                             if (mNotifyCharacteristic != null){
                                 mBluetoothGatt.setCharacteristicNotification(mNotifyCharacteristic, false);
                                 mNotifyCharacteristic = null;
@@ -181,6 +181,7 @@ public class BluetoothLEService {
                         }
                     }
                 }
+                setState(State.STATE_GOT_CHARACTERISTICS);
             }
         }
 

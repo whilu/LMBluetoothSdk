@@ -1,12 +1,9 @@
 package co.lujun.sample;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,13 +62,13 @@ public class ChatActivity extends Activity {
                     @Override
                     public void run() {
                         mConnectState = state;
-                        tvConnectState.setText("Connection state: " + transConnStateAsString(state));
+                        tvConnectState.setText("Connection state: " + Utils.transConnStateAsString(state));
                     }
                 });
             }
 
             @Override
-            public void onActionDeviceFound(BluetoothDevice device) {}
+            public void onActionDeviceFound(BluetoothDevice device, short rssi) {}
 
             @Override
             public void onReadData(final BluetoothDevice device, final byte[] data) {
@@ -97,7 +94,7 @@ public class ChatActivity extends Activity {
         tvDeviceName.setText("Device: " + mDeviceName);
         tvDeviceMac.setText("MAC address: " + mMacAddress);
         tvConnectState.setText("Connection state: "
-                + transConnStateAsString(mBluetoothController.getConnectionState()));
+                + Utils.transConnStateAsString(mBluetoothController.getConnectionState()));
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,23 +129,5 @@ public class ChatActivity extends Activity {
             tvDeviceName.setText("Device: " + mDeviceName);
             tvDeviceMac.setText("MAC address: " + mMacAddress);
         }
-    }
-
-    private String transConnStateAsString(int state){
-        String result;
-        if (state == State.STATE_NONE) {
-            result = "NONE";
-        } else if (state == State.STATE_LISTEN) {
-            result = "LISTEN";
-        } else if (state == State.STATE_CONNECTING) {
-            result = "CONNECTING";
-        } else if (state == State.STATE_CONNECTED) {
-            result = "CONNECTED";
-        } else if (state == State.STATE_DISCONNECTED){
-            result = "DISCONNECTED";
-        }else {
-            result = "UNKNOWN";
-        }
-        return result;
     }
 }

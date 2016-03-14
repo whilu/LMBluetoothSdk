@@ -1,7 +1,9 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 lujun
+ * Copyright (c) 2015 LinkMob.cc
+
+ * Author: lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -164,22 +166,12 @@ public class BluetoothController extends Bluetooth {
         }
     }
 
-    /**
-     * Release the instance resources.
-     * if you want to use again, use {@link #build(Context)} to build again.
-     */
+    @Override
     public void release(){
-        mContext.unregisterReceiver(mReceiver);
         mBluetoothService = null;
-        mBluetoothAdapter = null;
+        super.release();
     }
 
-    /**
-     * Get connection state.
-     * Possible return values are STATE_NONE, STATE_LISTEN, STATE_CONNECTING, STATE_CONNECTED,
-     * STATE_DISCONNECTED, STATE_UNKNOWN in {@link State} class.
-     * @return the connection state
-     */
     public int getConnectionState(){
         if (mBluetoothService != null){
             return mBluetoothService.getState();
@@ -206,7 +198,7 @@ public class BluetoothController extends Bluetooth {
     }
 
     /**
-     * Set a UUID for SDP record.
+     * Set an UUID for SDP record.
      * @param uuid an UUID
      */
     public void setAppUuid(UUID uuid){

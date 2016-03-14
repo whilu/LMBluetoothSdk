@@ -1,7 +1,9 @@
 /*
  * The MIT License (MIT)
 
- * Copyright (c) 2015 lujun
+ * Copyright (c) 2015 LinkMob.cc
+
+ * Author: lujun
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +46,7 @@ import java.util.Set;
 
 import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
+import co.lujun.lmbluetoothsdk.base.State;
 import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
 
 /**
@@ -55,11 +58,15 @@ public class BluetoothLEController extends Bluetooth {
 
     private BluetoothLeScanner mLEScanner;
     private BluetoothLEService mBluetoothLEService;
+    private BluetoothDevice mConnectDevice;
     private ScanSettings mLeSettings;
     private List<ScanFilter> mLeFilters;
     private Handler mHandler;
 
-    private int mScanTime = 120000; // default scan time 120s
+    /**
+     * Default scan time 120s
+     */
+    private int mScanTime = 120000;
 
     private static BluetoothLEController sBluetoothLEController;
 
@@ -99,14 +106,14 @@ public class BluetoothLEController extends Bluetooth {
      */
     public void setBluetoothListener(BluetoothLEListener listener){
         this.mBluetoothListener = listener;
-        registerReceiver();
+//        registerReceiver();
         if (mBluetoothLEService != null) {
             mBluetoothLEService.setBluetoothLEListener(mBluetoothListener);
         }
     }
 
     /**
-     *  Check to determine whether BLE is supported on the device
+     *  Check to determine whether BLE is supported on the device.
      * @return
      */
     public boolean isSupportBLE(){
@@ -136,6 +143,9 @@ public class BluetoothLEController extends Bluetooth {
                 cancelScan();
             }
         }, mScanTime);
+        if (mBluetoothListener != null){
+            mBluetoothListener.onActionDiscoveryStateChanged(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        }
         if (Build.VERSION.SDK_INT < 21) {
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         }else {
@@ -156,6 +166,9 @@ public class BluetoothLEController extends Bluetooth {
         }else {
             mLEScanner.stopScan(mCbtScanCallback);
         }
+        if (mBluetoothListener != null){
+            mBluetoothListener.onActionDiscoveryStateChanged(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        }
         return true;
     }
 
@@ -172,12 +185,15 @@ public class BluetoothLEController extends Bluetooth {
     @Override
     public void connect(String mac) {
         if (mBluetoothLEService != null) {
-            mBluetoothLEService.connect(mContext, mBluetoothAdapter.getRemoteDevice(mac));
+            mConnectDevice = mBluetoothAdapter.getRemoteDevice(mac);
+            mBluetoothLEService.connect(mContext, mConnectDevice);
         }
     }
 
-    @Override
-    public void reConnect(String mac) {
+    /**
+     * Reconnect a bluetooth device when the connection is lost.
+     */
+    public void reConnect() {
         if (mBluetoothLEService != null) {
             mBluetoothLEService.reConnect();
         }
@@ -191,6 +207,21 @@ public class BluetoothLEController extends Bluetooth {
     }
 
     @Override
+    public void release(){
+        mBluetoothLEService.close();
+        mBluetoothLEService = null;
+        super.release();
+    }
+
+    @Override
+    public int getConnectionState(){
+        if (mBluetoothLEService != null){
+            return mBluetoothLEService.getState();
+        }
+        return State.STATE_UNKNOWN;
+    }
+
+    @Override
     public void write(byte[] data) {
         if (mBluetoothLEService != null) {
             mBluetoothLEService.write(data);
@@ -199,7 +230,7 @@ public class BluetoothLEController extends Bluetooth {
 
     /**
      * Set scan time(unit millisecond)
-     * @param time
+     * @param time the scan time
      */
     public void setScanTime(int time){
         mScanTime = time;
@@ -215,7 +246,7 @@ public class BluetoothLEController extends Bluetooth {
 
     @Override
     public BluetoothDevice getConnectedDevice() {
-        return null;
+        return mConnectDevice;
     }
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
@@ -223,7 +254,7 @@ public class BluetoothLEController extends Bluetooth {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             if (mBluetoothListener != null) {
-                mBluetoothListener.onActionDeviceFound(device);
+                mBluetoothListener.onActionDeviceFound(device, (short)rssi);
             }
         }
 
@@ -236,8 +267,9 @@ public class BluetoothLEController extends Bluetooth {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            if (mBluetoothListener != null) {
-                mBluetoothListener.onActionDeviceFound(result.getDevice());
+            if (mBluetoothListener != null)
+            {
+                mBluetoothListener.onActionDeviceFound(result.getDevice(), (short)result.getRssi());
             }
         }
 
