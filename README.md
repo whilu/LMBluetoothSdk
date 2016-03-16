@@ -16,7 +16,7 @@ A library to make classic bluetooth or BLE easier to use in Android.
 
 ```groovy
 dependencies {
-    compile 'co.lujun:lmbluetoothsdk:1.0.1'
+    compile 'co.lujun:lmbluetoothsdk:1.0.2'
 }
 ```
 
@@ -26,7 +26,7 @@ dependencies {
 <dependency>
     <groupId>co.lujun</groupId>
     <artifactId>lmbluetoothsdk</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>aar</packaging>
 </dependency>
 ```
@@ -188,8 +188,14 @@ Manufacturing bluetooth connection status, there are 6 states in the class.
 | STATE_CONNECTED | 3 | connected to a remote device
 | STATE_DISCONNECTED | 4 | lost the connection
 | STATE_UNKNOWN | 5 | unknown state
+| STATE_GOT_CHARACTERISTICS | 6 | got all characteristics
 
 ## Change logs
+###1.0.2(2016-3-15)
+- Add ```RSSI``` value for scan callback
+- Add ```STATE_GOT_CHARACTERISTICS``` state for got all characteristics
+- fixed issue [#3](https://github.com/whilu/LMBluetoothSdk/issues/3)
+
 ###1.0.1(2016-2-2)
 - sync to Maven
 - fixed issue [#2](https://github.com/whilu/LMBluetoothSdk/issues/2)
