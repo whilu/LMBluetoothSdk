@@ -121,7 +121,7 @@ public class BluetoothLEController extends Bluetooth {
     }
 
     @Override
-    public boolean startScan() {
+    public boolean startScan(UUID[] serviceUUIDs) {
         if (!isAvailable() && !isEnabled()){
             return false;
         }
@@ -130,10 +130,21 @@ public class BluetoothLEController extends Bluetooth {
             mLeSettings = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                     .build();
-            mLeFilters = new ArrayList<ScanFilter>();
+            mLeFilters = scanFilters(serviceUUIDs);
         }
         scanLeDevice();
         return true;
+    }
+
+    private List<ScanFilter> scanFilters(UUID[] serviceUUIDs) {
+        List<ScanFilter> list = new ArrayList<>();
+        
+        for (int i = 0; i <serviceUUIDs.length; i++){
+            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(serviceUUIDs[i].toStri‌​ng())).build();
+            list.add(filter);
+        }
+
+        return list;
     }
 
     private void scanLeDevice(){
