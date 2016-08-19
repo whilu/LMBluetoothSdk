@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 
 import java.util.Set;
+import java.util.UUID;
 
 import co.lujun.lmbluetoothsdk.receiver.BlueToothReceiver;
 
@@ -135,6 +136,14 @@ public abstract class Bluetooth {
      * @return if start scan operation success, return true
      */
     public boolean startScan(){
+        return false;
+    }
+
+    /**
+     * Start scan for found bluetooth device with service filter.
+     * @return if start scan operation success, return true
+     */
+    public boolean startScanByService(UUID[] serviceUUIDs){
         return false;
     }
 

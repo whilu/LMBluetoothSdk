@@ -43,6 +43,8 @@ import android.os.Handler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import android.os.ParcelUuid;
 
 import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
@@ -121,7 +123,23 @@ public class BluetoothLEController extends Bluetooth {
     }
 
     @Override
-    public boolean startScan(UUID[] serviceUUIDs) {
+    public boolean startScan() {
+        if (!isAvailable() && !isEnabled()){
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= 21){
+            mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
+            mLeSettings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            mLeFilters = new ArrayList<ScanFilter>();
+        }
+        scanLeDevice();
+        return true;
+    }
+
+    @Override
+    public boolean startScanByService(UUID[] serviceUUIDs) {
         if (!isAvailable() && !isEnabled()){
             return false;
         }
