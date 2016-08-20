@@ -116,12 +116,16 @@ public class BluetoothLEController extends Bluetooth {
 
     /**
      *  Check to determine whether BLE is supported on the device.
-     * @return
+     * @return boolean
      */
     public boolean isSupportBLE(){
         return mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
+    /**
+     * Start the scan of devices
+     * @return boolean
+     */
     @Override
     public boolean startScan() {
         if (!isAvailable() && !isEnabled()){
@@ -138,8 +142,13 @@ public class BluetoothLEController extends Bluetooth {
         return true;
     }
 
+    /**
+     * start scanning for possible devices who matches the service id
+     * @param serviceUUIDs the list of possible UUIDs to search
+     * @return boolean
+     */
     @Override
-    public boolean startScanByService(UUID[] serviceUUIDs) {
+    public boolean startScanByService(List<UUID> serviceUUIDs) {
         if (!isAvailable() && !isEnabled()){
             return false;
         }
@@ -154,11 +163,16 @@ public class BluetoothLEController extends Bluetooth {
         return true;
     }
 
-    private List<ScanFilter> scanFilters(UUID[] serviceUUIDs) {
+    /**
+     * The actual implementation of the filtering for services
+     * @param serviceUUIDs the list of possible UUIDs to search
+     * @return List
+     */
+    private List<ScanFilter> scanFilters(List<UUID> serviceUUIDs) {
         List<ScanFilter> list = new ArrayList<>();
-        
-        for (int i = 0; i <serviceUUIDs.length; i++){
-            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(serviceUUIDs[i].toStri‌​ng())).build();
+
+        for (UUID uuid : serviceUUIDs) {
+            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(uuid.toString())).build();
             list.add(filter);
         }
 
@@ -267,7 +281,7 @@ public class BluetoothLEController extends Bluetooth {
 
     /**
      * Get scan time.
-     * @return
+     * @return int
      */
     public int getScanTime() {
         return mScanTime;

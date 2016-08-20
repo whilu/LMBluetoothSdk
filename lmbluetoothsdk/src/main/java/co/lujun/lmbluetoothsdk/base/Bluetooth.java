@@ -31,6 +31,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.IntentFilter;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -141,9 +142,10 @@ public abstract class Bluetooth {
 
     /**
      * Start scan for found bluetooth device with service filter.
+     * @param serviceUUIDs the list of possible UUIDs to search
      * @return if start scan operation success, return true
      */
-    public boolean startScanByService(UUID[] serviceUUIDs){
+    public boolean startScanByService(List<UUID> serviceUUIDs){
         return false;
     }
 

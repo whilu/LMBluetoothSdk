@@ -89,8 +89,8 @@ public class BluetoothLEService {
 
     /**
      * Connect to a GATT server.
-     * @param context
-     * @param device
+     * @param context the context
+     * @param device the device
      */
     public void connect(Context context, BluetoothDevice device){
         setState(State.STATE_CONNECTING);
@@ -128,7 +128,7 @@ public class BluetoothLEService {
 
     /**
      * Write data to remote device.
-     * @param data
+     * @param data data to send to the device
      */
     public void write(byte[] data){
         if (mBluetoothGatt != null){
