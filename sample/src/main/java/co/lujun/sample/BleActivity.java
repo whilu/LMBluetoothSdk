@@ -102,7 +102,7 @@ public class BleActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvContent.append( dataValue + "\n");
+                    tvContent.append( dataValue );
                 }
             });
         }
