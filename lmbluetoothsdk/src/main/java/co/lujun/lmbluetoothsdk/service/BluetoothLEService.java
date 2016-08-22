@@ -34,6 +34,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.util.Log;
 
 import java.util.List;
 
@@ -51,6 +52,8 @@ public class BluetoothLEService {
     private BaseListener mBluetoothListener;
     private BluetoothGatt mBluetoothGatt;
     private BluetoothGattCharacteristic mWriteCharacteristic, mNotifyCharacteristic;
+    private String writeCharacteristicUUID;
+    private String readCharacteristicUUID;
 
     private int mState;
 
@@ -137,6 +140,14 @@ public class BluetoothLEService {
         }
     }
 
+    public void setWriteCharacteristic(String characteristicUUID) {
+        writeCharacteristicUUID = characteristicUUID;
+    }
+
+    public void setReadCharacteristic(String characteristicUUID) {
+        readCharacteristicUUID = characteristicUUID;
+    }
+
     private BluetoothGattCallback mBTGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -160,10 +171,14 @@ public class BluetoothLEService {
             super.onServicesDiscovered(gatt, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 List<BluetoothGattService> services = gatt.getServices();
+                if(mBluetoothListener != null){
+                    ((BluetoothLEListener)mBluetoothListener).onDiscoveringServices(services);
+                }
                 for (BluetoothGattService service : services) {
                     List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
                     for (BluetoothGattCharacteristic characteristic : characteristics) {
                         final int charaProp = characteristic.getProperties();
+                        Log.d("LMBluetoothSdk", "Properties from the characteristic : " + charaProp);
                         if ((charaProp | BluetoothGattCharacteristic.PERMISSION_READ) > 0){
                             if (mNotifyCharacteristic != null){
                                 mBluetoothGatt.setCharacteristicNotification(mNotifyCharacteristic, false);
@@ -175,10 +190,16 @@ public class BluetoothLEService {
                             mNotifyCharacteristic = characteristic;
                             mBluetoothGatt.setCharacteristicNotification(characteristic, true);
                         }
-                        if (((charaProp & BluetoothGattCharacteristic.PERMISSION_WRITE)
-                                | (charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) > 0){
+                        if (((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE)
+                                | (charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) > 0
+                                | (charaProp > 0 & characteristic.getUuid().equals(writeCharacteristicUUID))){
+                            Log.d("LMBluetoothSdk", "Asigning write characteristic : " + characteristic.getUuid());
                             mWriteCharacteristic = characteristic;
                         }
+
+                    }
+                    if(mBluetoothListener != null){
+                        ((BluetoothLEListener)mBluetoothListener).onDiscoveringCharacteristics(characteristics);
                     }
                 }
                 setState(State.STATE_GOT_CHARACTERISTICS);

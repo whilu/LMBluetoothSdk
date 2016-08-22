@@ -26,7 +26,10 @@
 
 package co.lujun.lmbluetoothsdk.base;
 
+
+import java.util.List;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 
 /**
  * Author: lujun(http://blog.lujun.co)
@@ -51,4 +54,17 @@ public interface BluetoothLEListener extends BaseListener {
      * @param characteristic the characteristic
      */
     void onDataChanged(BluetoothGattCharacteristic characteristic);
+
+    /**
+     * When a service is discovered, send the list of characteristics
+     * @param characteristics the list of characteristics
+     */
+    void onDiscoveringCharacteristics(List<BluetoothGattCharacteristic> characteristics);
+
+
+    /**
+     * When a device is connected, send the list of services
+     * @param services the list of services
+     */
+    void onDiscoveringServices(List<BluetoothGattService> services);
 }

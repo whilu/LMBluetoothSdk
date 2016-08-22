@@ -303,6 +303,14 @@ public class BluetoothLEController extends Bluetooth {
 
     };
 
+    public void setWriteCharacteristic(String characteristicUUID) {
+        mBluetoothLEService.setWriteCharacteristic(characteristicUUID);
+    }
+
+    public void setReadCharacteristic(String characteristicUUID) {
+        mBluetoothLEService.setReadCharacteristic(characteristicUUID);
+    }
+
     private CBTScanCallback mCbtScanCallback;
 
     private class CBTScanCallback extends ScanCallback {
