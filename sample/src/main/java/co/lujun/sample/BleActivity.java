@@ -96,11 +96,13 @@ public class BleActivity extends AppCompatActivity {
 
         @Override
         public void onDataChanged(final BluetoothGattCharacteristic characteristic) {
+
+            final String dataValue = characteristic.getStringValue(0);
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvContent.append("Changed from " + characteristic.getUuid()
-                            + ": " + parseData(characteristic) + "\n");
+                    tvContent.append( dataValue + "\n");
                 }
             });
         }
@@ -230,7 +232,10 @@ public class BleActivity extends AppCompatActivity {
     }
 
     private String parseData(BluetoothGattCharacteristic characteristic){
-        String result = "";
+
+        String result = characteristic.getStringValue(0);
+
+        //String result = "";
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
@@ -249,11 +254,11 @@ public class BleActivity extends AppCompatActivity {
 //            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
 //        } else {
         // For all other profiles, writes the data formatted in HEX.
-        final byte[] data = characteristic.getValue();
-        if (data != null && data.length > 0) {
-            result =  new String(data);
-        }
-//        }
+        //final byte[] data = characteristic.getValue();
+        //if (data != null && data.length > 0) {
+        //    result =  new String(data);
+        //}
+//      //  }
         return result;
     }
 }
