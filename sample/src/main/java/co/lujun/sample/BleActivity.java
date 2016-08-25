@@ -45,6 +45,12 @@ public class BleActivity extends AppCompatActivity {
 
     private static final String TAG = "LMBluetoothSdk";
 
+    // You can change this options if you want to search by service and specify read/write
+    // characteristics to be added to the controller
+    private static final String SERVICE_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
+    private static final String READ_CHARACTERISTIC_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
+    private static final String WRITE_CHARACTERISTIC_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
+
     private BluetoothLEListener mBluetoothLEListener = new BluetoothLEListener() {
 
         @Override
@@ -174,20 +180,26 @@ public class BleActivity extends AppCompatActivity {
 
         lvDevices.setAdapter(mFoundAdapter);
 
-        mBLEController.setReadCharacteristic("00035B03-58E6-07DD-021A-08123A000301");
-        mBLEController.setWriteCharacteristic("00035B03-58E6-07DD-021A-08123A000301");
+        mBLEController.setReadCharacteristic(READ_CHARACTERISTIC_ID);
+        mBLEController.setWriteCharacteristic(WRITE_CHARACTERISTIC_ID);
 
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mList.clear();
                 mFoundAdapter.notifyDataSetChanged();
-                List<UUID> uuids = new ArrayList<UUID>();
-                uuids.add(UUID.fromString("00035B03-58E6-07DD-021A-08123A000300"));
 
-                if( mBLEController.startScanByService(uuids) ){
+                if( mBLEController.startScan() ){
                     Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
                 }
+
+//                You can scan by service using the following code:
+//                List<UUID> uuids = new ArrayList<UUID>();
+//                uuids.add(UUID.fromString(SERVICE_ID));
+//
+//                if( mBLEController.startScanByService(uuids) ){
+//                    Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
+//                }
             }
         });
         btnDisconnect.setOnClickListener(new View.OnClickListener() {
