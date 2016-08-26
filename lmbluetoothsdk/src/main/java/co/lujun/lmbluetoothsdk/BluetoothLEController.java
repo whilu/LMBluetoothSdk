@@ -43,6 +43,8 @@ import android.os.Handler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import android.os.ParcelUuid;
 
 import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
@@ -114,12 +116,16 @@ public class BluetoothLEController extends Bluetooth {
 
     /**
      *  Check to determine whether BLE is supported on the device.
-     * @return
+     * @return boolean
      */
     public boolean isSupportBLE(){
         return mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
+    /**
+     * Start the scan of devices
+     * @return boolean
+     */
     @Override
     public boolean startScan() {
         if (!isAvailable() && !isEnabled()){
@@ -134,6 +140,43 @@ public class BluetoothLEController extends Bluetooth {
         }
         scanLeDevice();
         return true;
+    }
+
+    /**
+     * start scanning for possible devices who matches the service id
+     * @param serviceUUIDs the list of possible UUIDs to search
+     * @return boolean
+     */
+    @Override
+    public boolean startScanByService(List<UUID> serviceUUIDs) {
+        if (!isAvailable() && !isEnabled()){
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= 21){
+            mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
+            mLeSettings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            mLeFilters = scanFilters(serviceUUIDs);
+        }
+        scanLeDevice();
+        return true;
+    }
+
+    /**
+     * The actual implementation of the filtering for services
+     * @param serviceUUIDs the list of possible UUIDs to search
+     * @return List
+     */
+    private List<ScanFilter> scanFilters(List<UUID> serviceUUIDs) {
+        List<ScanFilter> list = new ArrayList<>();
+
+        for (UUID uuid : serviceUUIDs) {
+            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(uuid.toString())).build();
+            list.add(filter);
+        }
+
+        return list;
     }
 
     private void scanLeDevice(){
@@ -238,7 +281,7 @@ public class BluetoothLEController extends Bluetooth {
 
     /**
      * Get scan time.
-     * @return
+     * @return int
      */
     public int getScanTime() {
         return mScanTime;
@@ -259,6 +302,14 @@ public class BluetoothLEController extends Bluetooth {
         }
 
     };
+
+    public void setWriteCharacteristic(String characteristicUUID) {
+        mBluetoothLEService.setWriteCharacteristic(characteristicUUID);
+    }
+
+    public void setReadCharacteristic(String characteristicUUID) {
+        mBluetoothLEService.setReadCharacteristic(characteristicUUID);
+    }
 
     private CBTScanCallback mCbtScanCallback;
 

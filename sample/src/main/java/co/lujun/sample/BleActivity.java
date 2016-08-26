@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import co.lujun.lmbluetoothsdk.BluetoothLEController;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
@@ -43,13 +45,46 @@ public class BleActivity extends AppCompatActivity {
 
     private static final String TAG = "LMBluetoothSdk";
 
+    // You can change this options if you want to search by service and specify read/write
+    // characteristics to be added to the controller
+    private static final String SERVICE_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
+    private static final String READ_CHARACTERISTIC_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
+    private static final String WRITE_CHARACTERISTIC_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
+
     private BluetoothLEListener mBluetoothLEListener = new BluetoothLEListener() {
+
+        @Override
+        public void onDiscoveringCharacteristics(final List<BluetoothGattCharacteristic> characteristics) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for(BluetoothGattCharacteristic characteristic : characteristics){
+                        Log.d(TAG, "onDiscoveringCharacteristics - characteristic : " + characteristic.getUuid());
+                    }
+
+                }
+            });
+        }
+
+        @Override
+        public void onDiscoveringServices(final List<BluetoothGattService> services) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for(BluetoothGattService service : services){
+//                        Log.d(TAG, "onDiscoveringServices - service : " + service.getUuid());
+                    }
+
+                }
+            });
+        }
+
         @Override
         public void onReadData(final BluetoothGattCharacteristic characteristic) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvContent.append("Read from " + mBLEController.getConnectedDevice().getName()
+                    tvContent.append("Read from " + characteristic.getUuid()
                             + ": " + parseData(characteristic) + "\n");
                 }
             });
@@ -67,11 +102,13 @@ public class BleActivity extends AppCompatActivity {
 
         @Override
         public void onDataChanged(final BluetoothGattCharacteristic characteristic) {
+
+            final String dataValue = characteristic.getStringValue(0);
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvContent.append("Changed from " + mBLEController.getConnectedDevice().getName()
-                            + ": " + parseData(characteristic) + "\n");
+                    tvContent.append( dataValue );
                 }
             });
         }
@@ -143,14 +180,26 @@ public class BleActivity extends AppCompatActivity {
 
         lvDevices.setAdapter(mFoundAdapter);
 
+        mBLEController.setReadCharacteristic(READ_CHARACTERISTIC_ID);
+        mBLEController.setWriteCharacteristic(WRITE_CHARACTERISTIC_ID);
+
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mList.clear();
                 mFoundAdapter.notifyDataSetChanged();
-                if (mBLEController.startScan()){
+
+                if( mBLEController.startScan() ){
                     Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
                 }
+
+//                You can scan by service using the following code:
+//                List<UUID> uuids = new ArrayList<UUID>();
+//                uuids.add(UUID.fromString(SERVICE_ID));
+//
+//                if( mBLEController.startScanByService(uuids) ){
+//                    Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
+//                }
             }
         });
         btnDisconnect.setOnClickListener(new View.OnClickListener() {
@@ -195,7 +244,10 @@ public class BleActivity extends AppCompatActivity {
     }
 
     private String parseData(BluetoothGattCharacteristic characteristic){
-        String result = "";
+
+        String result = characteristic.getStringValue(0);
+
+        //String result = "";
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
@@ -214,11 +266,11 @@ public class BleActivity extends AppCompatActivity {
 //            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
 //        } else {
         // For all other profiles, writes the data formatted in HEX.
-        final byte[] data = characteristic.getValue();
-        if (data != null && data.length > 0) {
-            result =  new String(data);
-        }
-//        }
+        //final byte[] data = characteristic.getValue();
+        //if (data != null && data.length > 0) {
+        //    result =  new String(data);
+        //}
+//      //  }
         return result;
     }
 }
