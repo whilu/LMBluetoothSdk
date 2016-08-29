@@ -59,6 +59,8 @@ public class BluetoothLEService {
 
     public BluetoothLEService(){
         mState = State.STATE_NONE;
+        writeCharacteristicUUID = "";
+        readCharacteristicUUID = "";
     }
 
     /**
