@@ -47,9 +47,9 @@ public class BleActivity extends AppCompatActivity {
 
     // You can change this options if you want to search by service and specify read/write
     // characteristics to be added to the controller
-    private static final String SERVICE_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
-    private static final String READ_CHARACTERISTIC_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
-    private static final String WRITE_CHARACTERISTIC_ID = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX";
+    private static final String SERVICE_ID = "00035B03-58E6-07DD-021A-08123A000300";
+    private static final String READ_CHARACTERISTIC_ID = "00035B03-58E6-07DD-021A-08123A000301";
+    private static final String WRITE_CHARACTERISTIC_ID = "00035B03-58E6-07DD-021A-08123A000301";
 
     private BluetoothLEListener mBluetoothLEListener = new BluetoothLEListener() {
 
@@ -189,17 +189,17 @@ public class BleActivity extends AppCompatActivity {
                 mList.clear();
                 mFoundAdapter.notifyDataSetChanged();
 
-                if( mBLEController.startScan() ){
-                    Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
-                }
-
-//                You can scan by service using the following code:
-//                List<UUID> uuids = new ArrayList<UUID>();
-//                uuids.add(UUID.fromString(SERVICE_ID));
-//
-//                if( mBLEController.startScanByService(uuids) ){
+//                if( mBLEController.startScan() ){
 //                    Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
 //                }
+
+//                You can scan by service using the following code:
+                List<UUID> uuids = new ArrayList<UUID>();
+                uuids.add(UUID.fromString(SERVICE_ID));
+
+                if( mBLEController.startScanByService(uuids) ){
+                    Toast.makeText(BleActivity.this, "Scanning!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         btnDisconnect.setOnClickListener(new View.OnClickListener() {

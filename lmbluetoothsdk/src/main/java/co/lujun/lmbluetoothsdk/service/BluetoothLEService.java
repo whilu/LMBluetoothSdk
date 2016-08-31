@@ -32,6 +32,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
@@ -200,7 +201,16 @@ public class BluetoothLEService {
                             }else if(charaUUID.equalsIgnoreCase(readCharacteristicUUID)){
                                 mNotifyCharacteristic = characteristic;
                                 if( mBluetoothGatt.setCharacteristicNotification(characteristic, true) ) {
-                                    Log.d("LMBluetoothSdk", "Subscribing to characteristic : " + characteristic.getUuid());
+
+                                    for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+                                        BluetoothGattDescriptor readDescriptor = characteristic.getDescriptor(descriptor.getUuid());
+                                        readDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                                        mBluetoothGatt.writeDescriptor(descriptor);
+
+                                        Log.d("LMBluetoothSdk", "Enabled Notification Descriptor : " + descriptor.getUuid());
+                                    }
+
+                                    Log.d("LMBluetoothSdk", "Subscribed to characteristic : " + characteristic.getUuid());
                                 }
                             }
                         }
