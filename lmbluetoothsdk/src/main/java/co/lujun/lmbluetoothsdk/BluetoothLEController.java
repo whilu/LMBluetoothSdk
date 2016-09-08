@@ -27,6 +27,8 @@
 package co.lujun.lmbluetoothsdk;
 
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -36,6 +38,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
@@ -49,7 +52,9 @@ import android.os.ParcelUuid;
 import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
 import co.lujun.lmbluetoothsdk.base.State;
+import co.lujun.lmbluetoothsdk.receiver.AlarmReceiver;
 import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
+import co.lujun.lmbluetoothsdk.service.LMBluetoothService;
 
 /**
  * Author: lujun(http://blog.lujun.co)
@@ -99,8 +104,31 @@ public class BluetoothLEController extends Bluetooth {
                 (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         mBluetoothLEService = new BluetoothLEService();
+
+        scheduleAlarm(context);
+
         return this;
     }
+
+    public void scheduleAlarm(Context context){
+        // Construct an intent that will execute the AlarmReceiver
+        Intent intent = new Intent(context, AlarmReceiver.class);
+
+        // Create a PendingIntent to be triggered when the alarm goes off
+        final PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                AlarmReceiver.REQUEST_CODE,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Setup periodic alarm every 5 seconds
+        long firstMillis = System.currentTimeMillis(); // alarm is set right away
+        long intervalMillis = 5000;
+
+        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pendingIntent);
+    }
+
 
     /**
      * Set bluetooth listener, you can check all bluetooth status and read data with this listener's callback.
