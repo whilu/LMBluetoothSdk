@@ -48,13 +48,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import android.os.ParcelUuid;
+import android.util.Log;
 
 import co.lujun.lmbluetoothsdk.base.Bluetooth;
 import co.lujun.lmbluetoothsdk.base.BluetoothLEListener;
 import co.lujun.lmbluetoothsdk.base.State;
 import co.lujun.lmbluetoothsdk.receiver.AlarmReceiver;
 import co.lujun.lmbluetoothsdk.service.BluetoothLEService;
-import co.lujun.lmbluetoothsdk.service.LMBluetoothService;
 
 /**
  * Author: lujun(http://blog.lujun.co)
@@ -69,6 +69,8 @@ public class BluetoothLEController extends Bluetooth {
     private ScanSettings mLeSettings;
     private List<ScanFilter> mLeFilters;
     private Handler mHandler;
+
+    public Boolean shouldStartScan = true;
 
     /**
      * Default scan time 120s
@@ -98,8 +100,9 @@ public class BluetoothLEController extends Bluetooth {
      * @return BluetoothLEController instance
      */
     public BluetoothLEController build(Context context){
+        Log.d("LMBluetoothSDK", "BluetoothLEController");
         mContext = context;
-        mHandler = new Handler();
+        mHandler = new Handler(context.getMainLooper());
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -110,9 +113,12 @@ public class BluetoothLEController extends Bluetooth {
         return this;
     }
 
-    public void scheduleAlarm(Context context){
+    public void scheduleAlarm(Context context) {
+        Log.d("LMBluetoothSDK", "scheduleAlarm");
         // Construct an intent that will execute the AlarmReceiver
         Intent intent = new Intent(context, AlarmReceiver.class);
+
+        intent.putExtra("shouldStartScan", shouldStartScan);
 
         // Create a PendingIntent to be triggered when the alarm goes off
         final PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
@@ -180,6 +186,7 @@ public class BluetoothLEController extends Bluetooth {
         if (!isAvailable() && !isEnabled()){
             return false;
         }
+        Log.d("LMBluetoothSDK", "startScanByService");
         if (Build.VERSION.SDK_INT >= 21){
             mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
             mLeSettings = new ScanSettings.Builder()

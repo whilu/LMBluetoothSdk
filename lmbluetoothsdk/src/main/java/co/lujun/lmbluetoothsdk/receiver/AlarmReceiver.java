@@ -22,7 +22,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         ResultReceiver resultReceiver = intent.getParcelableExtra("receiver");
 
         // TODO: We should get this value from the app using the module
-        i.putExtra("shouldStartScan", true);
+        i.putExtra("shouldStartScan", intent.getBooleanExtra("shouldStartScan", false));
         i.putExtra("receiver", resultReceiver);
         context.startService(i);
     }
