@@ -44,7 +44,6 @@ public class LMBluetoothService extends IntentService {
         Log.i(TAG, "-------- GETTING PROPERTIES should start scan " + property);
 
         if( shouldStartScan ){
-//            intent.getParcelableExtra("receiver");
             Log.i(TAG, "the scan should start now");
             mBLEController = BluetoothLEController.getInstance().build(this);
             List<UUID> uuids = new ArrayList<UUID>();

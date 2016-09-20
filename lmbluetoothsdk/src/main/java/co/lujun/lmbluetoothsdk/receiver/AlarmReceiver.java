@@ -3,7 +3,7 @@ package co.lujun.lmbluetoothsdk.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.ResultReceiver;
+import android.util.Log;
 
 import co.lujun.lmbluetoothsdk.service.LMBluetoothService;
 
@@ -17,13 +17,11 @@ public class AlarmReceiver extends BroadcastReceiver {
     // Triggered by the Alarm periodically (starts the service to run task)
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.i("LMBluetoothSDK", "AlarmReceiver onReceive");
         Intent i = new Intent(context, LMBluetoothService.class);
-
-        ResultReceiver resultReceiver = intent.getParcelableExtra("receiver");
 
         // TODO: We should get this value from the app using the module
         i.putExtra("shouldStartScan", intent.getBooleanExtra("shouldStartScan", false));
-        i.putExtra("receiver", resultReceiver);
         context.startService(i);
     }
 }
