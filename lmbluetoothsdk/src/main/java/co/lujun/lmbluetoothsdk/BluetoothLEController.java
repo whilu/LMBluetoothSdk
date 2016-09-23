@@ -71,6 +71,7 @@ public class BluetoothLEController extends Bluetooth {
     private Handler mHandler;
 
     public Boolean shouldStartScan = true;
+    public String SERVICE_ID = "";
 
     /**
      * Default scan time 120s
@@ -108,31 +109,28 @@ public class BluetoothLEController extends Bluetooth {
         mBluetoothAdapter = bluetoothManager.getAdapter();
         mBluetoothLEService = new BluetoothLEService();
 
-        scheduleAlarm(context);
-
         return this;
     }
 
-    public void scheduleAlarm(Context context) {
+    public void scheduleAlarm() {
         Log.d("LMBluetoothSDK", "scheduleAlarm");
         // Construct an intent that will execute the AlarmReceiver
-        Intent intent = new Intent(context, AlarmReceiver.class);
+        Intent intent = new Intent(mContext, AlarmReceiver.class);
 
-        intent.putExtra("shouldStartScan", shouldStartScan);
+        intent.putExtra("shouldStartScan", this.shouldStartScan);
+        intent.putExtra("SERVICE_ID", SERVICE_ID);
 
         // Create a PendingIntent to be triggered when the alarm goes off
-        final PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-                AlarmReceiver.REQUEST_CODE,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        final PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, 0);
 
         // Setup periodic alarm every 5 seconds
         long firstMillis = System.currentTimeMillis(); // alarm is set right away
-        long intervalMillis = 5000;
+        long intervalMillis = 10000;
 
-        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarm = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pendingIntent);
+        Log.d("LMBluetoothSDK", "after setInexactRepeating");
     }
 
 

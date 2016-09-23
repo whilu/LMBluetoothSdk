@@ -7,11 +7,10 @@
     <application android:label="@string/app_name">
         <service
             android:name=".service.LMBluetoothService"
-            android:exported="false" />
+            android:process=":remote"/>
         <receiver
             android:name=".receiver.AlarmReceiver"
-            android:process=":remote" >
-        </receiver>
+            android:exported="false" />
     </application>
 
 </manifest>

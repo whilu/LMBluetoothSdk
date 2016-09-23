@@ -180,6 +180,7 @@ public class BleActivity extends AppCompatActivity {
 
         lvDevices.setAdapter(mFoundAdapter);
 
+        mBLEController.SERVICE_ID = SERVICE_ID;
         mBLEController.setReadCharacteristic(READ_CHARACTERISTIC_ID);
         mBLEController.setWriteCharacteristic(WRITE_CHARACTERISTIC_ID);
 
@@ -228,6 +229,7 @@ public class BleActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String itemStr = mList.get(position);
                 mBLEController.connect(itemStr.substring(itemStr.length() - 17));
+                mBLEController.scheduleAlarm();
             }
         });
 

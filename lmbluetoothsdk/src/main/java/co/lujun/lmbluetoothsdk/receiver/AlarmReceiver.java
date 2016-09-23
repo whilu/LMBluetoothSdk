@@ -12,16 +12,17 @@ import co.lujun.lmbluetoothsdk.service.LMBluetoothService;
  */
 public class AlarmReceiver extends BroadcastReceiver {
     public static final int REQUEST_CODE = 12345;
-    public static final String ACTION = "co.lujun.lmbluetoothsdk.alarm";
 
     // Triggered by the Alarm periodically (starts the service to run task)
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("LMBluetoothSDK", "AlarmReceiver onReceive");
-        Intent i = new Intent(context, LMBluetoothService.class);
+        Log.i("LMBluetoothSDK", "------------------- AlarmReceiver onReceive");
 
-        // TODO: We should get this value from the app using the module
+        Intent i = new Intent(context, LMBluetoothService.class);
         i.putExtra("shouldStartScan", intent.getBooleanExtra("shouldStartScan", false));
+        i.putExtra("SERVICE_ID", intent.getStringExtra("SERVICE_ID"));
+
+        Log.i("LMBluetoothSDK", "------------------- Starting the service");
         context.startService(i);
     }
 }

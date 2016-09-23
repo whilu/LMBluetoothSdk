@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,6 @@ public class LMBluetoothService extends IntentService {
 
     private static final String TAG = "LMBluetoothSDK";
     private BluetoothLEController mBLEController;
-    private static final String SERVICE_ID = "00035B03-58E6-07DD-021A-08123A000300";
 
     public LMBluetoothService(){
         super("LMBluetoothService");
@@ -35,17 +35,19 @@ public class LMBluetoothService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // This describes what will happen when service is triggered
-        Log.i(TAG, "onHandleIntent call");
+        Log.i(TAG, "[LMBuetoothService] - onHandleIntent call");
         Boolean shouldStartScan = intent.getBooleanExtra("shouldStartScan", false);
+        String SERVICE_ID = intent.getStringExtra("SERVICE_ID");
 
-        Log.i(TAG, "-------- GETTING PROPERTIES " );
+        Log.i(TAG, "[LMBuetoothService] -------- GETTING PROPERTIES " );
         String property = getPreference("shouldStartScan");
 
-        Log.i(TAG, "-------- GETTING PROPERTIES should start scan " + property);
+        Log.i(TAG, "[LMBuetoothService] -------- GETTING PROPERTIES should start scan " + property);
 
         if( shouldStartScan ){
-            Log.i(TAG, "the scan should start now");
+            Log.i(TAG, "[LMBuetoothService] - onHandleIntent - about to start the scan");
             mBLEController = BluetoothLEController.getInstance().build(this);
+
             List<UUID> uuids = new ArrayList<UUID>();
             uuids.add(UUID.fromString(SERVICE_ID));
 
@@ -56,9 +58,14 @@ public class LMBluetoothService extends IntentService {
     }
 
     private String getPreference(String key){
+        Log.i(TAG, "[LMBuetoothService] - getPreference - key : " + key);
         SharedPreferences preferences = this.getSharedPreferences("titanium", this.MODE_PRIVATE);
-        Object value = preferences.getAll().get(key);
-        return value.toString();
+        String result = "";
+        Log.i(TAG, "[LMBuetoothService] - after getting shared preferences");
+        result = preferences.getString(key, "no");
+        Log.i(TAG, "[LMBuetoothService] - result : " + result);
+
+        return result;
     }
 
 
