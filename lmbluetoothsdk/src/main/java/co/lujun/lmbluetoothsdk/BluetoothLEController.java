@@ -72,6 +72,7 @@ public class BluetoothLEController extends Bluetooth {
 
     public Boolean shouldStartScan = true;
     public String SERVICE_ID = "";
+    private Boolean isListenerSetup = false;
 
     /**
      * Default scan time 120s
@@ -139,10 +140,13 @@ public class BluetoothLEController extends Bluetooth {
      * @param listener a BluetoothListener
      */
     public void setBluetoothListener(BluetoothLEListener listener){
+        Log.d("LMBluetoothSdk", "[BluetoothLEController] - setBluetoothListener");
         this.mBluetoothListener = listener;
 //        registerReceiver();
         if (mBluetoothLEService != null) {
+            Log.d("LMBluetoothSdk", "[BluetoothLEController] - setBluetoothListener - actually setting the listener");
             mBluetoothLEService.setBluetoothLEListener(mBluetoothListener);
+            isListenerSetup = true;
         }
     }
 

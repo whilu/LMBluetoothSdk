@@ -29,7 +29,7 @@ public class LMBluetoothService extends IntentService {
     public void onCreate() {
         super.onCreate(); // if you override onCreate(), make sure to call super().
         // If a Context object is needed, call getApplicationContext() here.
-        Log.d(TAG, "onCreate call");
+        Log.d(TAG, "[LMBluetoothService] - onCreate call");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class LMBluetoothService extends IntentService {
             uuids.add(UUID.fromString(SERVICE_ID));
 
             if( mBLEController.startScanByService(uuids) ){
-                Log.i(TAG, "Scanning");
+                Log.i(TAG, "[LMBuetoothService] - Scanning");
             }
         }
     }
@@ -60,9 +60,8 @@ public class LMBluetoothService extends IntentService {
     private String getPreference(String key){
         Log.i(TAG, "[LMBuetoothService] - getPreference - key : " + key);
         SharedPreferences preferences = this.getSharedPreferences("titanium", this.MODE_PRIVATE);
-        String result = "";
-        Log.i(TAG, "[LMBuetoothService] - after getting shared preferences");
-        result = preferences.getString(key, "no");
+
+        String result = preferences.getString(key, "no");
         Log.i(TAG, "[LMBuetoothService] - result : " + result);
 
         return result;

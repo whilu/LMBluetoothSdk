@@ -72,7 +72,7 @@ public class BleActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     for(BluetoothGattService service : services){
-//                        Log.d(TAG, "onDiscoveringServices - service : " + service.getUuid());
+                        Log.d(TAG, "[BleActivity] - onDiscoveringServices - service : " + service.getUuid());
                     }
 
                 }
@@ -229,7 +229,7 @@ public class BleActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String itemStr = mList.get(position);
                 mBLEController.connect(itemStr.substring(itemStr.length() - 17));
-                mBLEController.scheduleAlarm();
+//                mBLEController.scheduleAlarm();
             }
         });
 
