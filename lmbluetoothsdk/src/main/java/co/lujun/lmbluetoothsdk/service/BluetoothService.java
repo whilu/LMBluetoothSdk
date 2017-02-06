@@ -24,6 +24,7 @@ import android.bluetooth.BluetoothSocket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 
 import co.lujun.lmbluetoothsdk.base.BaseListener;
@@ -355,9 +356,14 @@ public class BluetoothService {
             int bytes;
             while (true) {
                 try {
-                    bytes = mmInStream.read(buffer);
-                    if (mBluetoothListener != null){
-                        ((BluetoothListener)mBluetoothListener).onReadData(mmSocket.getRemoteDevice(), buffer);
+                    if (mmInStream.available()>0) {
+                        bytes = mmInStream.read(buffer);
+                        if (bytes>0) {
+                            byte[] data = Arrays.copyOf(buffer,bytes);
+                            if (mBluetoothListener != null) {
+                                ((BluetoothListener) mBluetoothListener).onReadData(mmSocket.getRemoteDevice(), data);
+                            }
+                        }
                     }
                 } catch (IOException e) {
                     setState(co.lujun.lmbluetoothsdk.base.State.STATE_DISCONNECTED);
