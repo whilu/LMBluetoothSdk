@@ -356,13 +356,11 @@ public class BluetoothService {
             int bytes;
             while (true) {
                 try {
-                    if (mmInStream.available()>0) {
-                        bytes = mmInStream.read(buffer);
-                        if (bytes>0) {
-                            byte[] data = Arrays.copyOf(buffer,bytes);
-                            if (mBluetoothListener != null) {
-                                ((BluetoothListener) mBluetoothListener).onReadData(mmSocket.getRemoteDevice(), data);
-                            }
+                    bytes = mmInStream.read(buffer);
+                    if (bytes > 0) {
+                        byte[] data = Arrays.copyOf(buffer, bytes);
+                        if (mBluetoothListener != null) {
+                            ((BluetoothListener) mBluetoothListener).onReadData(mmSocket.getRemoteDevice(), data);
                         }
                     }
                 } catch (IOException e) {
