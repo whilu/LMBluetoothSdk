@@ -16,7 +16,7 @@ A library to make classic bluetooth or BLE easier to use in Android.
 
 ```groovy
 dependencies {
-    compile 'co.lujun:lmbluetoothsdk:1.0.4'
+    compile 'co.lujun:lmbluetoothsdk:1.0.5'
 }
 ```
 
@@ -26,7 +26,7 @@ dependencies {
 <dependency>
     <groupId>co.lujun</groupId>
     <artifactId>lmbluetoothsdk</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>aar</packaging>
 </dependency>
 ```
@@ -191,6 +191,8 @@ Manufacturing bluetooth connection status, there are 6 states in the class.
 | STATE_GOT_CHARACTERISTICS | 6 | got all characteristics
 
 ## Change logs
+###1.0.5(2017-2-16)
+
 ###1.0.4(2017-2-6)
 - bug fix
 
