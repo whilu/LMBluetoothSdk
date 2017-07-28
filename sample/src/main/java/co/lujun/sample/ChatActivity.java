@@ -3,7 +3,9 @@ package co.lujun.sample;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +16,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Method;
+
 import co.lujun.lmbluetoothsdk.BluetoothController;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
 import co.lujun.lmbluetoothsdk.base.State;
@@ -22,7 +26,7 @@ import co.lujun.lmbluetoothsdk.base.State;
  * Author: lujun(http://blog.lujun.co)
  * Date: 2016-1-21 16:10
  */
-public class ChatActivity extends Activity implements BluetoothHeadset.ServiceListener{
+public class ChatActivity extends Activity{
     private BluetoothController mBluetoothController;
 
     private Button btnDisconnect, btnSend;
@@ -41,6 +45,7 @@ public class ChatActivity extends Activity implements BluetoothHeadset.ServiceLi
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
 
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_main);
@@ -54,12 +59,12 @@ public class ChatActivity extends Activity implements BluetoothHeadset.ServiceLi
         }
 
         mBluetoothAdapter = mBluetoothManager.getAdapter();
+        mBluetoothAdapter.getProfileProxy(getApplicationContext(), mServiceListener, BluetoothProfile.HEADSET);
         if (mBluetoothAdapter == null) {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return;
         }
 
-        bluetoothHeadset = new BluetoothHeadset(getApplicationContext(), this);
         init();
     }
 
@@ -146,11 +151,6 @@ public class ChatActivity extends Activity implements BluetoothHeadset.ServiceLi
         if (!TextUtils.isEmpty(mMacAddress)) {
 //            mBluetoothController.connect(mMacAddress);
             mDevice = mBluetoothAdapter.getRemoteDevice(mMacAddress);
-            if(isServiceConnected){
-                if(bluetoothHeadset.connectHeadset(mDevice)){
-                    isHeadsetConnected = true;
-                }
-            }
         }else {
             if (mBluetoothController.getConnectedDevice() == null){
                 return;
@@ -162,18 +162,42 @@ public class ChatActivity extends Activity implements BluetoothHeadset.ServiceLi
         }
     }
 
-    @Override
-    public void onServiceConnected() {
-        isServiceConnected = true;
-        if(!isHeadsetConnected && mDevice != null){
-            if(bluetoothHeadset.connectHeadset(mDevice)){
-                isHeadsetConnected = true;
+
+//    @Override
+//    public void onServiceConnected() {
+//        isServiceConnected = true;
+//        if(!isHeadsetConnected && mDevice != null){
+//            if(bluetoothHeadset.connectHeadset(mDevice)){
+//                isHeadsetConnected = true;
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void onServiceDisconnected() {
+//        isServiceConnected = false;
+//    }
+
+    private BluetoothProfile.ServiceListener mServiceListener = new BluetoothProfile.ServiceListener() {
+        @Override
+        public void onServiceConnected(int profile, BluetoothProfile proxy) {
+            if (profile == BluetoothProfile.HEADSET) {
+                Log.i(TAG, "Headset connected");
+
+                try {
+                    Method connect = BluetoothHeadset.class.getDeclaredMethod("connect", BluetoothDevice.class);
+                    connect.setAccessible(true);
+                    connect.invoke(proxy, mDevice);
+
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
             }
         }
-    }
 
-    @Override
-    public void onServiceDisconnected() {
-        isServiceConnected = false;
-    }
+        @Override
+        public void onServiceDisconnected(int profile) {
+            Log.i(TAG, "Headset disconnected");
+        }
+    };
 }
