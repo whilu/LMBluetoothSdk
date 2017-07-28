@@ -1,9 +1,13 @@
 package co.lujun.sample;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +22,7 @@ import co.lujun.lmbluetoothsdk.base.State;
  * Author: lujun(http://blog.lujun.co)
  * Date: 2016-1-21 16:10
  */
-public class ChatActivity extends Activity {
+public class ChatActivity extends Activity implements BluetoothHeadset.ServiceListener{
     private BluetoothController mBluetoothController;
 
     private Button btnDisconnect, btnSend;
@@ -29,12 +33,33 @@ public class ChatActivity extends Activity {
     private String mMacAddress = "", mDeviceName = "";
 
     private static final String TAG = "LMBluetoothSdk";
+    private BluetoothHeadset bluetoothHeadset;
+    private boolean isServiceConnected = false;
+    private boolean isHeadsetConnected = false;
 
-    @Override
+    private BluetoothDevice mDevice;
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_main);
 
+        if (mBluetoothManager == null) {
+            mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            if (mBluetoothManager == null) {
+                Log.e(TAG,  "Unable to initialize BluetoothManager.");
+                return ;
+            }
+        }
+
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
+        if (mBluetoothAdapter == null) {
+            Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
+            return;
+        }
+
+        bluetoothHeadset = new BluetoothHeadset(getApplicationContext(), this);
         init();
     }
 
@@ -119,7 +144,13 @@ public class ChatActivity extends Activity {
         });
 
         if (!TextUtils.isEmpty(mMacAddress)) {
-            mBluetoothController.connect(mMacAddress);
+//            mBluetoothController.connect(mMacAddress);
+            mDevice = mBluetoothAdapter.getRemoteDevice(mMacAddress);
+            if(isServiceConnected){
+                if(bluetoothHeadset.connectHeadset(mDevice)){
+                    isHeadsetConnected = true;
+                }
+            }
         }else {
             if (mBluetoothController.getConnectedDevice() == null){
                 return;
@@ -129,5 +160,20 @@ public class ChatActivity extends Activity {
             tvDeviceName.setText("Device: " + mDeviceName);
             tvDeviceMac.setText("MAC address: " + mMacAddress);
         }
+    }
+
+    @Override
+    public void onServiceConnected() {
+        isServiceConnected = true;
+        if(!isHeadsetConnected && mDevice != null){
+            if(bluetoothHeadset.connectHeadset(mDevice)){
+                isHeadsetConnected = true;
+            }
+        }
+    }
+
+    @Override
+    public void onServiceDisconnected() {
+        isServiceConnected = false;
     }
 }
