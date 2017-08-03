@@ -44,6 +44,8 @@ public class ChatActivity extends Activity{
     private BluetoothDevice mDevice;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
+    public BluetoothProfile headset;
+    public BluetoothProfile a2Dp;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -143,8 +145,17 @@ public class ChatActivity extends Activity{
             public void onClick(View v) {
                 if (mConnectState == State.STATE_CONNECTED) {
                     mBluetoothController.disconnect();
+//                    unpair(mDevice);
                 }
-                finish();
+                Method connect = null;
+                try {
+                    connect = BluetoothHeadset.class.getDeclaredMethod("disconnect", BluetoothDevice.class);
+                    connect.setAccessible(true);
+                    connect.invoke(headset, mDevice);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+//                finish();
             }
         });
 
@@ -179,11 +190,12 @@ public class ChatActivity extends Activity{
 //    }
 
     private BluetoothProfile.ServiceListener mServiceListener = new BluetoothProfile.ServiceListener() {
+
         @Override
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
             if (profile == BluetoothProfile.HEADSET) {
-                Log.i(TAG, "Headset connected");
-
+                Log.i(TAG, "Headset proxy connected");
+                headset = proxy;
                 try {
                     Method connect = BluetoothHeadset.class.getDeclaredMethod("connect", BluetoothDevice.class);
                     connect.setAccessible(true);
@@ -200,4 +212,23 @@ public class ChatActivity extends Activity{
             Log.i(TAG, "Headset disconnected");
         }
     };
+
+
+    private static boolean unpair(BluetoothDevice device) {
+        Method sRmBd = null;
+        try {
+            sRmBd =BluetoothDevice.class.getMethod("removeBond", (Class[]) null);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        if (sRmBd != null) {
+            try {
+                sRmBd.invoke(device, (Object[]) null);
+                return true;
+            } catch (Throwable t) {
+                Log.e(TAG , ":" + "unpair: error", t);
+            }
+        }
+        return false;
+    }
 }
