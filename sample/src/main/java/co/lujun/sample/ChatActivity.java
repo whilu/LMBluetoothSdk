@@ -1,6 +1,7 @@
 package co.lujun.sample;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
@@ -20,7 +21,6 @@ import java.lang.reflect.Method;
 
 import co.lujun.lmbluetoothsdk.BluetoothController;
 import co.lujun.lmbluetoothsdk.base.BluetoothListener;
-import co.lujun.lmbluetoothsdk.base.State;
 
 /**
  * Author: lujun(http://blog.lujun.co)
@@ -62,6 +62,7 @@ public class ChatActivity extends Activity{
 
         mBluetoothAdapter = mBluetoothManager.getAdapter();
         mBluetoothAdapter.getProfileProxy(getApplicationContext(), mServiceListener, BluetoothProfile.HEADSET);
+        mBluetoothAdapter.getProfileProxy(getApplicationContext(), mA2dpServiceListener, BluetoothProfile.A2DP);
         if (mBluetoothAdapter == null) {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return;
@@ -143,15 +144,27 @@ public class ChatActivity extends Activity{
         btnDisconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mConnectState == State.STATE_CONNECTED) {
-                    mBluetoothController.disconnect();
-//                    unpair(mDevice);
-                }
+//                if (mConnectState == State.STATE_CONNECTED) {
+//                    mBluetoothController.disconnect();
+////                    unpair(mDevice);
+//                }
                 Method connect = null;
+                Method setPriority = null;
+                Method disconnectA2dp = null;
+                Method seta2dppriority = null;
                 try {
+                    setPriority = BluetoothHeadset.class.getDeclaredMethod("setPriority", BluetoothDevice.class, int.class);
                     connect = BluetoothHeadset.class.getDeclaredMethod("disconnect", BluetoothDevice.class);
+                    seta2dppriority = BluetoothA2dp.class.getDeclaredMethod("setPriority", BluetoothDevice.class, int.class);
+                    disconnectA2dp = BluetoothA2dp.class.getDeclaredMethod("disconnect", BluetoothDevice.class);
+                    setPriority.setAccessible(true);
+                    setPriority.invoke(headset, mDevice, 100);
                     connect.setAccessible(true);
                     connect.invoke(headset, mDevice);
+                    seta2dppriority.setAccessible(true);
+                    seta2dppriority.invoke(a2Dp, mDevice, 100);
+                    disconnectA2dp.setAccessible(true);
+                    disconnectA2dp.invoke(a2Dp, mDevice);
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -209,10 +222,24 @@ public class ChatActivity extends Activity{
 
         @Override
         public void onServiceDisconnected(int profile) {
+            headset = null;
             Log.i(TAG, "Headset disconnected");
         }
     };
 
+    private BluetoothProfile.ServiceListener mA2dpServiceListener = new BluetoothProfile.ServiceListener() {
+        @Override
+        public void onServiceConnected(int profile, BluetoothProfile proxy) {
+            if (profile == BluetoothProfile.A2DP) {
+                a2Dp = proxy;
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(int profile) {
+            a2Dp = null;
+        }
+    };
 
     private static boolean unpair(BluetoothDevice device) {
         Method sRmBd = null;
