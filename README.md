@@ -155,7 +155,7 @@ Now the initialization step has been completed, you can use the following functi
 | getConnectedDevice() | | connected remote device | get the connected remote device
 | release() | | | release the instance resources, if you want to use again, use the instance's ```build(Context)``` method build again
 
-** Note: In Android6.0+, you have to ask the user explicitly about `ACCESS_COARSE_LOCATION` permission, because `BluetoothDevice.ACTION_FOUND` require `ACCESS_COARSE_LOCATION` permission when search classic bluetooth devices. **
+**Note: In Android6.0+, you have to ask the user explicitly about `ACCESS_COARSE_LOCATION` permission, because `BluetoothDevice.ACTION_FOUND` require `ACCESS_COARSE_LOCATION` permission when search classic bluetooth devices.**
 
 ## Public methods for BluetoothController
 
@@ -192,6 +192,7 @@ Manufacturing bluetooth connection status, there are 6 states in the class.
 
 ## Change logs
 ### 1.0.5(2017-2-16)
+- bug fix
 
 ### 1.0.4(2017-2-6)
 - bug fix
