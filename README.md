@@ -155,7 +155,7 @@ Now the initialization step has been completed, you can use the following functi
 | getConnectedDevice() | | connected remote device | get the connected remote device
 | release() | | | release the instance resources, if you want to use again, use the instance's ```build(Context)``` method build again
 
-** Note: In Android6.0+, you have to ask the user explicitly about `ACCESS_COARSE_LOCATION` permission, because `BluetoothDevice.ACTION_FOUND` require `ACCESS_COARSE_LOCATION` permission when search classic bluetooth devices.**
+** Note: In Android6.0+, you have to ask the user explicitly about `ACCESS_COARSE_LOCATION` permission, because `BluetoothDevice.ACTION_FOUND` require `ACCESS_COARSE_LOCATION` permission when search classic bluetooth devices. **
 
 ## Public methods for BluetoothController
 
@@ -191,21 +191,21 @@ Manufacturing bluetooth connection status, there are 6 states in the class.
 | STATE_GOT_CHARACTERISTICS | 6 | got all characteristics
 
 ## Change logs
-###1.0.5(2017-2-16)
+### 1.0.5(2017-2-16)
 
-###1.0.4(2017-2-6)
+### 1.0.4(2017-2-6)
 - bug fix
 
-###1.0.2(2016-3-15)
+### 1.0.2(2016-3-15)
 - Add ```RSSI``` value for scan callback
 - Add ```STATE_GOT_CHARACTERISTICS``` state for got all characteristics
 - fixed issue [#3](https://github.com/whilu/LMBluetoothSdk/issues/3)
 
-###1.0.1(2016-2-2)
+### 1.0.1(2016-2-2)
 - sync to Maven
 - fixed issue [#2](https://github.com/whilu/LMBluetoothSdk/issues/2)
 
-###1.0.0(2016-1-26)
+### 1.0.0(2016-1-26)
 - First release
 
 ## Sample App
